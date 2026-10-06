@@ -66,3 +66,7 @@ index.html 위쪽의 `<style id="stepon-styles">`가 디자인 영역입니다. 
 ## 공식 로고
 
 공식 원본 로고는 assets/stepon-logo.png에 보관하며, 헤더와 푸터에는 동일한 원본을 데이터 URI로 HTML 안에 포함했습니다. 미리보기에서 별도 이미지 경로를 불러오지 않아도 표시됩니다. 원본 비율을 유지하며 PC는 너비 64px, 모바일은 50px로 표시합니다. 로고를 교체할 때는 원본 파일과 index.html 내부의 두 공식 로고 데이터 URI를 함께 갱신해야 합니다. GitHub에서는 assets 폴더 → Add file → Upload files로 원본 파일을 업로드할 수 있습니다.
+
+## 교육 사진
+
+assets/images/에 원본 PNG와 웹 표시용 WebP를 보관합니다. main-study는 소개, home-tutoring은 방문수업, online-tutoring은 화상수업, study-management는 학습관리, parent-consulting은 무료 시강 안내에 사용합니다. 미리보기 이미지 경로 오류를 피하기 위해 화면의 사진은 WebP 데이터를 index.html에 직접 포함했습니다. 사진을 교체할 때는 원본 파일과 해당 education-photo 이미지의 src 데이터를 함께 갱신하세요. 사진의 크기·위치는 style 영역 끝의 교육 사진 CSS에서 조정합니다.

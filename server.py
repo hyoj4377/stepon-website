@@ -6,7 +6,10 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parent
 PUBLIC_FILES = {
-    "index.html", "assets/favicon.svg", "assets/stepon-logo.png"
+    "index.html", "assets/favicon.svg", "assets/stepon-logo.png",
+    *{f"assets/images/{name}.{extension}"
+      for name in ("main-study", "home-tutoring", "online-tutoring", "study-management", "parent-consulting")
+      for extension in ("png", "webp")}
 }
 
 
