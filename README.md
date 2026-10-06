@@ -10,7 +10,7 @@
 
 ```sh
 cd /workspace/stepon-website
-python3 -m http.server 3000 --bind 0.0.0.0
+python3 server.py --port 3000
 ```
 
 클라우드에서 보려면 사용 중인 서비스의 포트 전달 기능으로 3000번 포트에 접속하거나, 파일을 내려받아 index.html을 여세요. 로컬 주소는 다른 사람에게 공유하는 공개 주소가 아닙니다.
@@ -52,6 +52,15 @@ reviews: [
 - styles.css: 색상·글꼴·모바일 디자인. 맨 위 :root의 색상값으로 기본 색상을 조정합니다.
 - app.js: 설정 내용을 표시하고 모바일 메뉴·상담 버튼을 연결하는 기능
 - assets/favicon.svg: 브라우저 탭 아이콘
+- server.py: 클라우드 미리보기용 정적 서버. 미리보기 경로 접두사와 올바른 파일 형식을 지원하고 수정 전 캐시가 남지 않게 합니다.
+
+클라우드에서 터미널 연결이 끝나도 서버를 유지하려면 다음 명령을 사용하세요. 서버 로그는 `/tmp/stepon-preview.log`에 기록됩니다. 이미 3000번 포트에서 실행 중이면 중복 실행하지 마세요.
+
+```sh
+nohup python3 -u server.py --port 3000 > /tmp/stepon-preview.log 2>&1 < /dev/null &
+```
+
+미리보기에 예전 화면이 남아 있다면 미리보기를 다시 열거나 새로고침하세요. 서버는 HTML·CSS·JavaScript에 `Cache-Control: no-store`를 적용합니다.
 
 구성 문구와 검색 결과 제목은 index.html에서 해당 문장을 찾아 바꾸세요. Google Fonts의 Noto Sans KR을 사용하며, 연결이 없으면 기기 기본 글꼴로 표시됩니다. 상담은 외부 신청 페이지로 연결하는 방식입니다. 홈페이지 자체는 개인정보를 수집하거나 신청 내용을 저장하지 않습니다.
 
