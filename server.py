@@ -6,7 +6,7 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parent
 PUBLIC_FILES = {
-    "index.html", "assets/favicon.svg"
+    "index.html", "assets/favicon.svg", "assets/stepon-logo.png"
 }
 
 

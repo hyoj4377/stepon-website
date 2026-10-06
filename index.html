@@ -19,13 +19,14 @@
 @media(max-width:360px){h1{font-size:26px}.button{font-size:11px;padding:13px;gap:12px}.hero-strip .container{font-size:8px}.hero-meta{gap:9px;font-size:10px}.format-card{padding:25px 18px;gap:14px}.format-icon{width:36px;height:36px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
 
-  </style>
+  .logo-fallback{display:flex;align-items:center;gap:12px}.official-logo{display:block;width:64px;height:auto;object-fit:contain}.official-logo[hidden],.logo-fallback[hidden]{display:none}@media(max-width:640px){.official-logo{width:50px}}
+</style>
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 바로가기</a>
   <header class="header">
     <div class="container header-inner">
-      <a class="logo" href="#" aria-label="스텝온과외 홈"><span class="logo-mark">s<span>↗</span></span><span><strong>STEP ON<span class="logo-dot">.</span></strong><small data-brand>스텝온과외</small></span></a>
+      <a class="logo" href="#" aria-label="스텝온과외 홈"><img class="official-logo" src="./assets/stepon-logo.png" alt="스텝온과외 공식 로고" width="1254" height="1254" hidden><span class="logo-fallback"><span class="logo-mark">s<span>↗</span></span><span><strong>STEP ON<span class="logo-dot">.</span></strong><small data-brand>스텝온과외</small></span></span></a>
       <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="메뉴 열기"><span></span><span></span></button>
       <nav id="navigation" aria-label="주요 메뉴"><a href="#about">스텝온 소개</a><a href="#learning">학습 안내</a><a href="#care">학습 관리</a><a href="#reviews">수강 후기</a><a class="nav-cta" data-consult href="#contact">상담 신청 <span>↗</span></a></nav>
     </div>
@@ -46,7 +47,7 @@
     <section class="section trial" id="trial"><div class="container trial-grid"><div><p class="eyebrow">YOUR FIRST STEP</p><h2>첫걸음은,<br>직접 경험해 보세요.</h2><p id="trial-description"></p><a class="button gold" data-consult href="#contact">무료 시강 신청하기 <span>↗</span></a><small id="trial-note"></small></div><ol class="trial-process"><li><span>01</span><div><h3>상담 신청</h3><p>학생의 학년과 필요한 과목을 알려주세요.</p></div></li><li><span>02</span><div><h3>학습 방향 상담</h3><p>학습 상황과 원하는 수업 방식을 함께 살펴봅니다.</p></div></li><li><span>03</span><div><h3>무료 시강 경험</h3><p>일정을 조율하고 우리 아이에게 맞는지 확인합니다.</p></div></li></ol></div></section>
     <section class="section contact" id="contact"><div class="container"><p class="eyebrow">LET’S TAKE THE NEXT STEP</p><h2>우리 아이의 다음 한 걸음,<br>함께 이야기해 볼까요?</h2><p>궁금한 점부터 편하게 나눠 주세요.</p><a class="button primary" data-consult href="#contact">상담 신청하기 <span>↗</span></a><p class="contact-status" id="contact-status" role="status"></p><div class="social-grid"><a id="kakao-link" class="social-card" href="#contact"><span class="social-symbol" aria-hidden="true">톡</span><div><h3>카카오채널</h3><p>스텝온과외와 편하게 이야기하세요.</p><small class="social-status"></small></div><span class="social-arrow">↗</span></a><a id="blog-link" class="social-card" href="#contact"><span class="social-symbol blog-symbol" aria-hidden="true">b</span><div><h3>스텝온 블로그</h3><p>배움에 관한 이야기를 만나보세요.</p><small class="social-status"></small></div><span class="social-arrow">↗</span></a></div></div></section>
   </main>
-  <footer><div class="container"><div class="footer-top"><a class="logo" href="#"><span class="logo-mark">s<span>↗</span></span><span><strong>STEP ON.</strong><small data-brand></small></span></a><p data-slogan></p><a class="back-top" href="#">맨 위로 ↑</a></div><div class="footer-details" id="footer-details"></div><div class="footer-bottom"><span>© <span id="year"></span> STEP ON. All rights reserved.</span><span>Every step matters.</span></div></div></footer>
+  <footer><div class="container"><div class="footer-top"><a class="logo" href="#"><img class="official-logo" src="./assets/stepon-logo.png" alt="스텝온과외 공식 로고" width="1254" height="1254" hidden><span class="logo-fallback"><span class="logo-mark">s<span>↗</span></span><span><strong>STEP ON.</strong><small data-brand></small></span></span></a><p data-slogan></p><a class="back-top" href="#">맨 위로 ↑</a></div><div class="footer-details" id="footer-details"></div><div class="footer-bottom"><span>© <span id="year"></span> STEP ON. All rights reserved.</span><span>Every step matters.</span></div></div></footer>
   <a class="mobile-consult" data-consult href="#contact">무료 시강 상담 <span>↗</span></a>
   <noscript><p class="noscript">홈페이지의 문구를 보려면 브라우저에서 JavaScript를 활성화해 주세요.</p></noscript>
 <!-- 홈페이지 설정: 자주 바꾸는 문구·상담 링크·연락처는 아래에서 수정하세요. -->
@@ -92,6 +93,16 @@ window.STEPON_CONFIG = {
 (() => {
   'use strict';
   const config = window.STEPON_CONFIG;
+  document.querySelectorAll('.official-logo').forEach((image) => {
+    const showOriginal = () => {
+      if (image.naturalWidth > 0) {
+        image.hidden = false;
+        image.nextElementSibling.hidden = true;
+      }
+    };
+    image.addEventListener('load', showOriginal);
+    if (image.complete) showOriginal();
+  });
   const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const text = (selector, value) => document.querySelectorAll(selector).forEach((element) => { element.textContent = value; });
   const safeUrl = (value) => {
