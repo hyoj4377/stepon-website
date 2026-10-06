@@ -57,8 +57,8 @@ window.STEPON_CONFIG = {
   slogan: '학생의 성장을 함께 디자인합니다',
   // https://로 시작하는 실제 상담 신청 주소를 넣으면 모든 상담 버튼에 적용됩니다.
   consultationUrl: 'https://sscoaching.co.kr/ssc/marketing/sangsangLanding2?code=3260631_I',
-  kakaoUrl: '',
-  blogUrl: '',
+  kakaoUrl: 'http://pf.kakao.com/_eMxbPX/chat',
+  blogUrl: 'https://blog.naver.com/dagmetal',
   phone: '',
   email: '',
   business: { representative: '', registrationNumber: '', address: '' },
@@ -95,7 +95,7 @@ window.STEPON_CONFIG = {
   const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const text = (selector, value) => document.querySelectorAll(selector).forEach((element) => { element.textContent = value; });
   const safeUrl = (value) => {
-    try { const url = new URL(value); return url.protocol === 'https:' ? url.href : null; } catch { return null; }
+    try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) ? url.href : null; } catch { return null; }
   };
   text('[data-brand]', config.brand);
   text('[data-slogan]', config.slogan);
