@@ -30,6 +30,15 @@
 @media(max-width:1100px){.format-content{padding:30px 24px;gap:18px}}
 @media(min-width:641px) and (max-width:900px){.format-content{display:block}}
 @media(max-width:640px){.about-grid>.education-photo{margin-top:4px}.format-content{display:flex;padding:29px 23px;gap:19px}.format-card .education-photo{width:calc(100% - 40px);margin:0 20px 20px}.care-heading .education-photo{margin-top:28px}.trial-visual .education-photo{margin-bottom:28px}}
+
+/* Hero 오른쪽 전용: 학습 과정의 번호이며 통계 그래프가 아닙니다. */
+.hero-art.learning-journey{background:transparent;border-radius:0;overflow:visible;isolation:isolate}
+.journey-grid{position:absolute;inset:45px 0 30px;background-image:linear-gradient(#b9c8c51c 1px,transparent 1px),linear-gradient(90deg,#b9c8c51c 1px,transparent 1px);background-size:38px 38px;mask-image:radial-gradient(ellipse at 55% 52%,#000 15%,transparent 74%);z-index:-1}
+.journey-heading{position:absolute;top:26px;left:22px}.journey-heading>p{font-size:9px;letter-spacing:.2em;color:#8b754e;font-weight:600;margin-bottom:7px}.journey-heading h2{font-size:24px;letter-spacing:-.035em;line-height:1.4;font-weight:500}.journey-heading>span{display:block;margin-top:9px;font-size:11px;color:#7b8991}
+.journey-path{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.journey-stages{list-style:none;margin:0;padding:0}.journey-stage{position:absolute;width:100px;text-align:center;transform:translate(-50%,-19px)}.journey-stage:nth-child(1){left:14%;top:73.913%}.journey-stage:nth-child(2){left:38%;top:57.609%}.journey-stage:nth-child(3){left:60%;top:41.304%}.journey-stage:nth-child(4){left:83%;top:27.174%}
+.journey-point{display:flex;align-items:center;justify-content:center;width:38px;height:38px;margin:0 auto 15px;border:1px solid #a4b7c0;border-radius:50%;background:#f6f8f7;color:#355566;font-size:10px;font-weight:500;letter-spacing:.04em;box-shadow:0 0 0 7px #f6f8f7}.journey-stage:last-child .journey-point{border-color:#b69a68;color:#8b754e}.journey-stage h3{font-size:14px;font-weight:600;letter-spacing:-.035em;margin-bottom:4px}.journey-stage p{font-size:9px;white-space:nowrap;color:#74858e;letter-spacing:-.02em}.journey-caption{position:absolute;left:22px;bottom:20px;display:flex;align-items:center;gap:12px;font-size:10px;color:#7b8991}.journey-caption>span{width:24px;height:1px;background:#b69a68}
+@media(min-width:641px) and (max-width:900px){.journey-heading{left:10px}.journey-heading h2{font-size:21px}.journey-stage{width:88px}.journey-stage h3{font-size:13px}.journey-stage p{font-size:8px}.journey-point{width:34px;height:34px;margin-bottom:12px}.journey-caption{left:10px;font-size:9px}}
+@media(max-width:640px){.hero-art.learning-journey{height:auto;max-width:none;margin:0;padding:26px 20px 18px;border-top:1px solid #dce4e2}.journey-heading{position:static;margin-bottom:28px}.journey-heading h2{font-size:22px}.journey-heading>span{font-size:11px}.journey-path{display:none}.journey-grid{inset:50px 0 25px;mask-image:linear-gradient(90deg,transparent,#00000060,transparent)}.journey-stages{position:relative}.journey-stages:before{content:'';position:absolute;left:18px;top:18px;bottom:28px;width:1px;background:linear-gradient(#a4b7c0,#b69a68)}.journey-stage:nth-child(n){position:relative;left:auto;top:auto;width:100%;transform:none;text-align:left;display:flex;align-items:center;gap:22px;padding-bottom:25px}.journey-stage:last-child{padding-bottom:0}.journey-point{flex-shrink:0;margin:0;width:38px;height:38px;box-shadow:0 0 0 5px #f6f8f7}.journey-stage h3{font-size:15px;margin-bottom:3px}.journey-stage p{font-size:11px}.journey-caption{position:static;margin-top:28px;font-size:10px}}
 </style>
 </head>
 <body>
@@ -45,7 +54,18 @@
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-copy"><p class="eyebrow"><span></span> ONE STEP, YOUR WAY</p><h1 id="hero-title"></h1><p class="hero-description" id="hero-description"></p><div class="hero-meta"><span>초등 · 중등 · 고등</span><i></i><span>방문수업 · 화상수업</span></div><div class="button-row"><a class="button primary" data-consult href="#contact">무료 시강 신청하기 <span>↗</span></a><a class="button secondary" href="#learning">수업 알아보기 <span>→</span></a></div><p class="hero-footnote">우리 아이의 가능성, 그 다음 한 걸음부터.</p></div>
-        <div class="hero-art" role="img" aria-label="학생의 속도에 맞춰 한 단계씩 성장하는 계단 일러스트"><div class="art-grid"></div><div class="art-label">GROW AT YOUR OWN PACE</div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="art-sun"></div><div class="steps"><div class="step step-one"><span>01</span></div><div class="step step-two"><span>02</span></div><div class="step step-three"><span>03</span></div><div class="step step-four"><span>04</span></div></div><div class="art-note"><span class="tiny-star">✳</span><span>작은 한 걸음이<br><strong>큰 가능성이 되도록.</strong></span></div><span class="art-bottom">THE NEXT STEP IS YOURS.</span><span class="art-arrow">↗</span></div>
+        <div class="hero-art learning-journey" aria-label="STEP ON 학습 성장 로드맵">
+          <div class="journey-grid" aria-hidden="true"></div>
+          <div class="journey-heading"><p>STEP ON</p><h2>Learning Journey</h2><span>나에게 맞는 배움의 방향</span></div>
+          <svg class="journey-path" viewBox="0 0 500 460" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="journey-line" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#9eafb4"/><stop offset=".7" stop-color="#526e7f"/><stop offset="1" stop-color="#b69a68"/></linearGradient></defs><path d="M70 340 C133 340 127 265 190 265 S240 190 300 190 S355 125 415 125" fill="none" stroke="url(#journey-line)" stroke-width="1.5"/><path d="M70 354 C133 354 127 279 190 279 S240 204 300 204 S355 139 415 139" fill="none" stroke="#cbd5d6" stroke-width=".6" stroke-dasharray="2 6"/></svg>
+          <ol class="journey-stages">
+            <li class="journey-stage"><span class="journey-point">01</span><div><h3>학습 진단</h3><p>지금의 나를 이해하기</p></div></li>
+            <li class="journey-stage"><span class="journey-point">02</span><div><h3>방향 설정</h3><p>나에게 맞는 길 찾기</p></div></li>
+            <li class="journey-stage"><span class="journey-point">03</span><div><h3>학습 관리</h3><p>꾸준히 배움 이어가기</p></div></li>
+            <li class="journey-stage"><span class="journey-point">04</span><div><h3>성장</h3><p>다음 한 걸음으로</p></div></li>
+          </ol>
+          <div class="journey-caption"><span></span>학생의 속도에 맞춰, 한 걸음씩.</div>
+        </div>
       </div>
       <div class="hero-strip"><div class="container"><span>개인의 속도를 존중하는 배움</span><span>학생별 맞춤 학습 방향</span><span>일상에 맞춘 수업 방식</span></div></div>
     </section>
