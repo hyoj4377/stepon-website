@@ -65,4 +65,4 @@ index.html 위쪽의 `<style id="stepon-styles">`가 디자인 영역입니다. 
 
 ## 공식 로고
 
-공식 원본 로고는 assets/stepon-logo.png에 저장되어 헤더와 푸터에서 동일하게 사용합니다. 원본 비율을 유지하며 PC는 너비 64px, 모바일은 50px로 표시합니다. 로고를 교체할 때는 같은 경로의 파일을 변경하세요. GitHub에서는 assets 폴더 → Add file → Upload files로 원본 파일을 업로드할 수 있습니다.
+공식 원본 로고는 assets/stepon-logo.png에 보관하며, 헤더와 푸터에는 동일한 원본을 데이터 URI로 HTML 안에 포함했습니다. 미리보기에서 별도 이미지 경로를 불러오지 않아도 표시됩니다. 원본 비율을 유지하며 PC는 너비 64px, 모바일은 50px로 표시합니다. 로고를 교체할 때는 원본 파일과 index.html 내부의 두 공식 로고 데이터 URI를 함께 갱신해야 합니다. GitHub에서는 assets 폴더 → Add file → Upload files로 원본 파일을 업로드할 수 있습니다.
