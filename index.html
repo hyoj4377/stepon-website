@@ -56,7 +56,7 @@ window.STEPON_CONFIG = {
   brand: '스텝온과외',
   slogan: '학생의 성장을 함께 디자인합니다',
   // https://로 시작하는 실제 상담 신청 주소를 넣으면 모든 상담 버튼에 적용됩니다.
-  consultationUrl: '',
+  consultationUrl: 'https://sscoaching.co.kr/ssc/marketing/sangsangLanding2?code=3260631_I',
   kakaoUrl: '',
   blogUrl: '',
   phone: '',
@@ -112,6 +112,10 @@ window.STEPON_CONFIG = {
   const consultation = safeUrl(config.consultationUrl);
   document.querySelectorAll('[data-consult]').forEach((link) => {
     link.href = consultation || '#contact';
+    if (consultation) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
     if (!consultation) link.addEventListener('click', () => text('#contact-status', '상담 신청 링크를 준비 중입니다. 아래 등록된 연락처가 있다면 해당 연락처로 문의해 주세요.'));
   });
   if (!consultation) text('#contact-status', '온라인 상담 신청 링크를 준비 중입니다.');
