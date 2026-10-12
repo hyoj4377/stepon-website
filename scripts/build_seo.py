@@ -160,12 +160,12 @@ class Builder:
         return f'<a class="card" href="{esc(self.link(current, "guides/" + page["slug"] + "/index.html"))}"><span class="category">{esc(page["category"])}</span><h3>{esc(page["h1"])}</h3><p>{esc(page["description"])}</p><span class="card-arrow">자세히 알아보기 →</span></a>'
 
     def image(self, name):
-        allowed = {'main-study', 'home-tutoring', 'online-tutoring', 'study-management', 'parent-consulting'}
+        allowed = {'main-study', 'home-tutoring', 'online-tutoring', 'study-management', 'parent-consulting', 'korea-network-map'}
         if name not in allowed:
             raise ValueError('Unknown photo')
-        alts = {'main-study': '책상에서 교재를 펼치고 공부하는 학생', 'home-tutoring': '학생과 여성 코치가 함께 교재를 살펴보는 방문수업', 'online-tutoring': '노트북으로 선생님과 화상수업을 하는 학생', 'study-management': '플래너와 교재, 태블릿으로 학습을 정리하는 학생', 'parent-consulting': '학부모와 교육 컨설턴트의 학습 상담'}
+        alts = {'main-study': '책상에서 교재를 펼치고 공부하는 학생', 'home-tutoring': '학생과 여성 코치가 함께 교재를 살펴보는 방문수업', 'online-tutoring': '노트북으로 선생님과 화상수업을 하는 학생', 'study-management': '플래너와 교재, 태블릿으로 학습을 정리하는 학생', 'parent-consulting': '학부모와 교육 컨설턴트의 학습 상담', 'korea-network-map': '대한민국 본토와 제주도에 빛의 연결망을 표현한 전국 지도'}
         data = base64.b64encode((ROOT / 'assets/images' / (name + '.webp')).read_bytes()).decode()
-        return f'<img class="photo" src="data:image/webp;base64,{data}" width="1672" height="941" alt="{esc(alts[name])}" decoding="async">'
+        return f'<img class="photo{" nationwide-map" if name == "korea-network-map" else ""}" src="data:image/webp;base64,{data}" width="1672" height="941" alt="{esc(alts[name])}" decoding="async">'
 
     def layout(self, path, title, description, label, content, extra_css=''):
         home = self.link(path, 'index.html')
@@ -215,6 +215,7 @@ class Builder:
             blocks.append(f'<section class="guide-group"><div class="guide-group-heading"><span aria-hidden="true">0{number}</span><h3>{esc(heading)}</h3></div><div class="guide-choices">{links}</div></section>')
         guides = ''.join(blocks)
         group_css = """
+.hero .nationwide-map{object-fit:contain;object-position:50% 50%}
 #learning-guides .guide-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
 #learning-guides .guide-group{min-width:0}
 #learning-guides .guide-group-heading{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
@@ -229,7 +230,7 @@ class Builder:
 @media(max-width:900px){#learning-guides .guide-groups{gap:20px}#learning-guides h3{font-size:17px}#learning-guides .guide-choice{padding:16px;gap:10px}#learning-guides .guide-group-heading{gap:8px}}
 @media(max-width:640px){#learning-guides .guide-groups{grid-template-columns:1fr;gap:32px}#learning-guides .guide-group-heading{margin-bottom:14px;padding-bottom:12px}#learning-guides h3{font-size:19px}#learning-guides .guide-choices{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#learning-guides .guide-choice{padding:15px 14px;min-height:94px;align-items:flex-start}#learning-guides .guide-choice>span{padding-top:2px}#learning-guides h4{font-size:15px}}
 """
-        content = f'<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / NATIONWIDE LEARNING</p><h1>전국 지역별 과외, 학생에게 맞는 방향부터.</h1><p class="intro">초등·중등·고등 학생을 위한 방문과외와 화상과외를 안내합니다. 지역명보다 먼저 학생의 학습 상태와 필요한 과목을 살펴보고, 희망 지역·일정에 맞는 수업 방식을 상담하세요.</p>{self.consult("consultation_url", "우리 지역 수업 상담하기")}</div>{self.image("parent-consulting")}</div></section><section class="section"><div class="wrap"><h2>17개 시·도 상담 안내</h2><p class="lead">전국 지역의 상담을 안내합니다. 방문수업은 실제 주소·과목·시간을 확인한 뒤 가능 여부를 안내하며, 화상수업은 기기와 학습 환경을 함께 살펴봅니다. 지역별 안내는 검증된 정보를 충분히 확보한 뒤 차례로 공개합니다.</p><div class="region-grid">{"".join(cards)}</div><p class="note">준비 중인 지역의 별도 안내 페이지는 아직 공개하지 않습니다. 특정 동네나 학교의 전담 강사·수업 실적을 의미하지 않습니다.</p></div></section><section class="section soft"><div class="wrap"><h2>지역 상담에 도움이 되는 정보</h2><ul class="checklist"><li>시·도, 시·군·구, 읍·면·동과 방문 희망 주소</li><li>학생의 학년, 필요한 과목과 현재 사용하는 교재</li><li>어려운 단원, 공부 습관과 희망 학습 목표</li><li>가능한 요일·시간과 방문 또는 화상 희망 방식</li></ul><p class="note">학교별 일정·자료는 공식 안내를 바탕으로 확인합니다. 학교명은 상담 맥락을 이해하기 위한 정보이며 학교와의 제휴나 전담 수업을 뜻하지 않습니다.</p></div></section><section class="section" id="learning-guides"><div class="wrap"><h2>학년·과목·수업 방식별로 살펴보기</h2><p class="lead">현재 필요한 학습 내용을 먼저 확인해 보세요.</p><div class="guide-groups">{guides}</div></div></section>{self.cta()}'
+        content = f'<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / NATIONWIDE LEARNING</p><h1>전국 지역별 과외, 학생에게 맞는 방향부터.</h1><p class="intro">초등·중등·고등 학생을 위한 방문과외와 화상과외를 안내합니다. 지역명보다 먼저 학생의 학습 상태와 필요한 과목을 살펴보고, 희망 지역·일정에 맞는 수업 방식을 상담하세요.</p>{self.consult("consultation_url", "우리 지역 수업 상담하기")}</div>{self.image("korea-network-map")}</div></section><section class="section"><div class="wrap"><h2>17개 시·도 상담 안내</h2><p class="lead">전국 지역의 상담을 안내합니다. 방문수업은 실제 주소·과목·시간을 확인한 뒤 가능 여부를 안내하며, 화상수업은 기기와 학습 환경을 함께 살펴봅니다. 지역별 안내는 검증된 정보를 충분히 확보한 뒤 차례로 공개합니다.</p><div class="region-grid">{"".join(cards)}</div><p class="note">준비 중인 지역의 별도 안내 페이지는 아직 공개하지 않습니다. 특정 동네나 학교의 전담 강사·수업 실적을 의미하지 않습니다.</p></div></section><section class="section soft"><div class="wrap"><h2>지역 상담에 도움이 되는 정보</h2><ul class="checklist"><li>시·도, 시·군·구, 읍·면·동과 방문 희망 주소</li><li>학생의 학년, 필요한 과목과 현재 사용하는 교재</li><li>어려운 단원, 공부 습관과 희망 학습 목표</li><li>가능한 요일·시간과 방문 또는 화상 희망 방식</li></ul><p class="note">학교별 일정·자료는 공식 안내를 바탕으로 확인합니다. 학교명은 상담 맥락을 이해하기 위한 정보이며 학교와의 제휴나 전담 수업을 뜻하지 않습니다.</p></div></section><section class="section" id="learning-guides"><div class="wrap"><h2>학년·과목·수업 방식별로 살펴보기</h2><p class="lead">현재 필요한 학습 내용을 먼저 확인해 보세요.</p><div class="guide-groups">{guides}</div></div></section>{self.cta()}'
         self.outputs[path] = self.layout(path, '전국 지역별 과외 안내 | 초등 중등 고등 방문·화상과외 · 스텝온과외', '전국 17개 시·도 초등·중등·고등 과외 상담 안내. 학생의 학년과 영어·수학 학습 상황에 맞춰 방문과외·화상과외를 비교하고 지역별 실제 진행 조건을 확인하세요.', '전국 지역별 과외', content, group_css)
 
     def build_region(self, item):
