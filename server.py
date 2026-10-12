@@ -1,5 +1,6 @@
 """STEP ON static preview server. Run: python3 server.py --port 3000."""
 import argparse
+import json
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -11,6 +12,10 @@ PUBLIC_FILES = {
       for name in ("main-study", "home-tutoring", "online-tutoring", "study-management", "parent-consulting")
       for extension in ("png", "webp")}
 }
+
+manifest = ROOT / 'data/seo/generated.json'
+if manifest.exists():
+    PUBLIC_FILES.update(json.loads(manifest.read_text())['files'])
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -24,10 +29,13 @@ class Handler(SimpleHTTPRequestHandler):
         if any(part in {".", ".."} for part in clean.split("/")):
             return str(ROOT / "__not_public__")
         for name in sorted(PUBLIC_FILES, key=len, reverse=True):
-            if clean == "/" + name or clean.endswith("/" + name):
+            routes = {name}
+            if name.endswith('/index.html'):
+                routes.add(name.removesuffix('index.html'))
+            if any(clean == '/' + route or clean.endswith('/' + route) for route in routes):
                 return str(ROOT / name)
-        if clean.endswith("/"):
-            return str(ROOT / "index.html")
+        if clean in {'/', '/stepon-website/', '/preview/3000/'}:
+            return str(ROOT / 'index.html')
         return str(ROOT / "__not_public__")
 
     def end_headers(self):

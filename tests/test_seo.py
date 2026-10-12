@@ -1,0 +1,168 @@
+"""Readiness checks for generated pages, hierarchy, publication gates and links."""
+import copy
+import hashlib
+import json
+import sys
+import unittest
+from html.parser import HTMLParser
+from pathlib import Path
+from urllib.parse import unquote, urlsplit
+import xml.etree.ElementTree as ET
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'scripts'))
+from build_seo import Builder, validate_regions, publication_problems, region_path, verified_source
+
+
+class Document(HTMLParser):
+    def __init__(self, text):
+        super().__init__()
+        self.ids = set()
+        self.links = []
+        self.h1 = 0
+        self.alt = []
+        self.canonical = []
+        self.title = []
+        self.in_title = False
+        self.description = []
+        self.feed(text)
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if 'id' in attrs:
+            self.ids.add(attrs['id'])
+        if tag == 'a':
+            self.links.append(attrs)
+        if tag == 'h1':
+            self.h1 += 1
+        if tag == 'img':
+            self.alt.append(attrs.get('alt', ''))
+        if tag == 'link' and attrs.get('rel') == 'canonical':
+            self.canonical.append(attrs['href'])
+        if tag == 'meta' and attrs.get('name') == 'description':
+            self.description.append(attrs.get('content', ''))
+        if tag == 'title':
+            self.in_title = True
+
+    def handle_endtag(self, tag):
+        if tag == 'title':
+            self.in_title = False
+
+    def handle_data(self, data):
+        if self.in_title:
+            self.title.append(data)
+
+
+class SEOTests(unittest.TestCase):
+    def setUp(self):
+        self.builder = Builder()
+        self.builder.build()
+
+    def test_generated_output_is_current_and_reproducible(self):
+        self.builder.save(check=True)
+        other = Builder()
+        other.build()
+        self.assertEqual(self.builder.outputs, other.outputs)
+
+    def test_every_published_page_has_unique_metadata_and_accessible_html(self):
+        titles, descriptions, canonical = [], [], []
+        for path, text in self.builder.outputs.items():
+            if not path.endswith('.html'):
+                continue
+            doc = Document(text)
+            self.assertEqual(doc.h1, 1, path)
+            self.assertEqual(len(doc.canonical), 1, path)
+            self.assertTrue(doc.alt and all(doc.alt), path)
+            self.assertEqual(len(doc.description), 1, path)
+            self.assertNotIn('noindex', text)
+            titles.append(''.join(doc.title))
+            descriptions.append(doc.description[0])
+            canonical.append(doc.canonical[0])
+        for items in (titles, descriptions, canonical):
+            self.assertTrue(all(items))
+            self.assertEqual(len(items), len(set(items)))
+
+    def test_all_internal_links_and_fragments_resolve(self):
+        for path, text in self.builder.outputs.items():
+            if not path.endswith('.html'):
+                continue
+            doc = Document(text)
+            for attrs in doc.links:
+                parsed = urlsplit(attrs['href'])
+                if parsed.scheme:
+                    self.assertIn(parsed.scheme, ('http', 'https', 'tel'))
+                    if attrs.get('target') == '_blank':
+                        self.assertIn('noopener', attrs.get('rel', ''))
+                    continue
+                destination = (ROOT / path).parent / unquote(parsed.path) if parsed.path else ROOT / path
+                if destination.is_dir():
+                    destination /= 'index.html'
+                resolved = destination.resolve()
+                self.assertTrue(resolved.is_relative_to(ROOT), attrs['href'])
+                self.assertTrue(resolved.is_file(), f'{path}: {attrs["href"]}')
+                if parsed.fragment:
+                    target = doc if resolved == ROOT / path else Document(resolved.read_text())
+                    self.assertIn(parsed.fragment, target.ids)
+
+    def test_sitemap_exactly_matches_public_pages(self):
+        root = ET.fromstring(self.builder.outputs['sitemap.xml'])
+        urls = [node.text for node in root.findall('{http://www.sitemaps.org/schemas/sitemap/0.9}url/{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
+        expected = {self.builder.base} | {self.builder.canonical(path) for path in self.builder.outputs if path.endswith('.html')}
+        self.assertEqual(set(urls), expected)
+        self.assertEqual(len(urls), len(set(urls)))
+        self.assertTrue(all(url.startswith(self.builder.base) for url in urls))
+
+    def test_all_17_unreviewed_provinces_remain_unpublished(self):
+        provinces = [r for r in self.builder.regions if r['kind'] == 'province']
+        self.assertEqual(len(provinces), 17)
+        for item in [r for r in self.builder.regions if r['status'] == 'draft']:
+            path = region_path(item, self.builder.ids)
+            self.assertNotIn(path, self.builder.outputs)
+            self.assertFalse((ROOT / path).exists())
+            self.assertTrue(publication_problems(item, self.builder.ids))
+        attempted = copy.deepcopy(self.builder.regions)
+        unreviewed = attempted[0]
+        unreviewed.update(status='published', review={'approved': False}, sources=[])
+        with self.assertRaises(ValueError):
+            validate_regions(attempted)
+
+    def test_invalid_school_and_hierarchy_are_rejected(self):
+        school = {'id': 'unverified-school', 'slug': 'unverified-school', 'kind': 'school', 'name': '검증용 학교', 'official_name': '검증용 학교', 'parent_id': 'seoul', 'status': 'draft'}
+        with self.assertRaises(ValueError):
+            validate_regions(self.builder.regions + [school])
+        school.update(parent_id=None, status='published', school={'official_name': '검증용 학교'})
+        self.assertTrue(any('school' in problem.lower() for problem in publication_problems(school, {})))
+        self.assertFalse(verified_source({'url': 'https://example.com/school', 'verified': True, 'checked_on': '2026-10-12', 'type': 'official_school'}, school=True))
+
+    def test_draft_previews_cannot_be_written_into_public_checkout(self):
+        with self.assertRaises(ValueError):
+            self.builder.preview_drafts(ROOT / 'draft-previews')
+
+    def test_valid_hierarchy_produces_nested_school_grade_subject_url(self):
+        records = copy.deepcopy(self.builder.regions)
+        parent = 'daegu'
+        for kind, identifier, name in [('district', 'donggu', '동구'), ('neighborhood', 'bangchon', '방촌동'), ('school', 'verified-school', '검증용 학교'), ('learning', 'middle-math', '중학생 수학')]:
+            records.append({'id': identifier, 'slug': identifier, 'kind': kind, 'name': name, 'official_name': name, 'parent_id': parent, 'status': 'draft'})
+            parent = identifier
+        ids = validate_regions(records)
+        self.assertEqual(region_path(ids['middle-math'], ids), 'regions/daegu/donggu/bangchon/verified-school/middle-math/index.html')
+        self.assertNotIn(region_path(ids['middle-math'], ids), self.builder.outputs)
+
+    def test_region_name_only_duplicates_are_rejected(self):
+        records = copy.deepcopy(self.builder.regions[:2])
+        for record in records:
+            record.update(status='published', intro=record['name'] + ' 지역 상담 안내', sources=[{'url': 'https://www.moe.go.kr/', 'checked_on': '2026-10-12', 'verified': True, 'label': '테스트용 출처'}], review={'approved': True, 'reviewed_on': '2026-10-12'})
+            record['sections'] = [{'heading': '테스트용 학습 안내', 'paragraphs': [('동일한 내용을 지역명만 변경해 공개하지 않는지 점검하는 테스트 데이터입니다. ' * 10)], 'local_relevance': '중복 차단 테스트'} for _ in range(3)]
+        self.builder.regions = records
+        self.builder.ids = validate_regions(records)
+        with self.assertRaisesRegex(ValueError, 'duplicate'):
+            self.builder.build()
+
+    def test_grade_and_subject_guide_content_is_not_location_substitution(self):
+        bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
+        self.assertEqual(len(bodies), len(set(bodies)))
+        self.assertTrue(all(len(body) > 200 for body in bodies))
+
+
+if __name__ == '__main__':
+    unittest.main()
