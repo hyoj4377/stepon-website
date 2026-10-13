@@ -16,10 +16,14 @@
 | 고등학생 | guides/high/ |
 | 영어 | guides/english/ |
 | 수학 | guides/math/ |
+| 국어 | guides/korean/ |
+| 사회 | guides/social/ |
+| 과학 | guides/science/ |
+| 수행평가 관리 | guides/performance-assessment/ |
 
 예: https://hyoj4377.github.io/stepon-website/guides/english/
 
-사이트맵은 sitemap.xml에 있으며 현재 메인 포함 9개 URL을 담습니다. 실제 운영이 확인되지 않은 학교·동네별 URL이나 외부 상담 주소, 이미지 주소는 넣지 않습니다. 각 페이지의 탐색 메뉴와 관련 안내 카드가 서로 연결됩니다. 기존 메인 화면은 유지했으므로 새 안내의 진입 URL은 regions/이며 사이트맵에도 등록되어 있습니다.
+사이트맵은 sitemap.xml에 있으며 현재 메인 포함 13개 URL을 담습니다. 실제 운영이 확인되지 않은 학교·동네별 URL이나 외부 상담 주소, 이미지 주소는 넣지 않습니다. 각 페이지의 탐색 메뉴와 관련 안내 카드가 서로 연결됩니다. 기존 메인 화면은 유지했으므로 새 안내의 진입 URL은 regions/이며 사이트맵에도 등록되어 있습니다.
 
 ## 17개 시·도 초안
 
@@ -40,7 +44,7 @@ python3 scripts/build_seo.py --preview-drafts /tmp/stepon-region-review
 | 파일 | 역할 |
 | --- | --- |
 | data/seo/site.json | 신규 안내 페이지의 브랜드·상담·카카오·블로그·전화·기본 URL |
-| data/seo/guides.json | 방문·화상·초등·중등·고등·영어·수학 안내의 문구와 FAQ |
+| data/seo/guides.json | 방문·화상·학년·영어·수학·국어·사회·과학·수행평가 안내의 문구와 FAQ |
 | data/seo/regions.json | 지역·학교 계층, 초안·게시 상태, 공식 출처, 검토 기록 |
 | scripts/build_seo.py | HTML·내부 링크·메타데이터·사이트맵 생성 및 게시 조건 검사 |
 | data/seo/generated.json | 생성된 파일의 소유권과 체크섬 목록. 직접 수정하지 않음 |
@@ -83,7 +87,7 @@ regions/daegu/donggu/bangchon/{verified-school-slug}/middle-math/
 
 학교를 추가하기 전에 공식 학교명, 공식 학교 코드, 소재지의 실제 상위 동네를 확인하세요. 학교알리미(https://www.schoolinfo.go.kr/) 또는 공식 교육기관·학교 자료를 참고하고 실제로 확인한 문서의 정확한 URL과 확인일을 기록하세요. API 키나 개인정보는 이 데이터에 넣지 않습니다.
 
-school 객체에는 official_name, official_code, non_affiliation_notice: true를 기록합니다. sources에 type: official_school인 확인된 공식 학교 출처가 필요합니다. learning 객체에는 grade(elementary / middle / high)와 subject(english / math)를 넣습니다. 여러 학년·과목 페이지를 자동 조합해 게시하지 말고 각각 학생에게 도움이 되는 고유 안내를 검토하세요.
+school 객체에는 official_name, official_code, non_affiliation_notice: true를 기록합니다. sources에 type: official_school인 확인된 공식 학교 출처가 필요합니다. learning 객체에는 grade(elementary / middle / high)와 subject(english / math / korean / social / science)를 넣습니다. 여러 학년·과목 페이지를 자동 조합해 게시하지 말고 각각 학생에게 도움이 되는 고유 안내를 검토하세요.
 
 ## 지역·학교 게시 조건
 
@@ -107,6 +111,6 @@ python3 server.py --port 3000
 
 현재 서버는 main과 신규 안내·sitemap.xml만 제공하고, 없는 페이지에는 실제 404를 반환합니다. `/stepon-website/` 접두사와 하위 폴더 URL도 검증했습니다. 예시 로컬 주소는 http://localhost:3000/regions/입니다. 로컬 주소는 공개 공유용 주소가 아닙니다.
 
-현재 검증 결과: 생성기 재실행의 동일 결과, 사이트맵 9개 URL, 모든 내부 경로·앵커, 17개 초안 제외, 학교 게시 차단, 지역명만 바꾼 중복 차단, 계층 URL 확장, JavaScript 없는 실제 본문 표시를 확인했습니다. 브라우저에서는 신규 8개 페이지를 1440·768·390·320px에서 확인하고 공식 로고·사진·모바일 상담 버튼·링크·가로 넘침을 검사했습니다. 기존 메인 파일의 체크섬도 유지했습니다.
+현재 검증 결과: 생성기 재실행의 동일 결과, 사이트맵 13개 URL, 모든 내부 경로·앵커, 17개 초안 제외, 학교 게시 차단, 지역명만 바꾼 중복 차단, 계층 URL 확장, JavaScript 없는 실제 본문 표시를 확인했습니다. 브라우저에서는 신규 안내 페이지를 1440·768·390·320px에서 확인하고 공식 로고·사진·모바일 상담 버튼·링크·가로 넘침을 검사했습니다. 기존 메인 파일의 체크섬도 유지했습니다.
 
 공개 배포 후 regions/ 및 sitemap.xml을 열어 확인하고 네이버 서치어드바이저·구글 서치 콘솔에 사이트맵을 제출하세요. sitemap.xml에 실제 URL이 있다고 해서 즉시 색인되거나 검색 순위가 보장되는 것은 아닙니다.

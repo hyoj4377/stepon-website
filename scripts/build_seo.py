@@ -101,7 +101,7 @@ def publication_problems(item, ids):
             problems.append('Official school name, code and checked school source required')
         if school.get('non_affiliation_notice') is not True:
             problems.append('School non-affiliation disclosure required')
-    if item['kind'] == 'learning' and (item.get('grade') not in {'elementary', 'middle', 'high'} or item.get('subject') not in {'english', 'math'}):
+    if item['kind'] == 'learning' and (item.get('grade') not in {'elementary', 'middle', 'high'} or item.get('subject') not in {'english', 'math', 'korean', 'social', 'science'}):
         problems.append('Explicit supported grade and subject required')
     return problems
 
@@ -207,7 +207,8 @@ class Builder:
         groups = [
             ('수업 방식별 안내', [('visit', '방문과외', '익숙한 공간에서 함께 배우기'), ('online', '화상과외', '화면으로 이어지는 맞춤 학습')]),
             ('대상 학년별 안내', [('elementary', '초등학생', '기초 개념과 공부 습관'), ('middle', '중학생', '개념과 학교 학습의 연결'), ('high', '고등학생', '목표와 학습 우선순위')]),
-            ('과목별 안내', [('english', '영어과외', '어휘부터 문장 이해까지'), ('math', '수학과외', '개념과 풀이 과정 점검')]),
+            ('과목별 안내', [('english', '영어과외', '어휘부터 문장 이해까지'), ('math', '수학과외', '개념과 풀이 과정 점검'), ('korean', '국어과외', '독해와 근거 중심의 표현'), ('social', '사회과외', '개념과 자료 분석의 연결'), ('science', '과학과외', '개념 이해와 탐구 자료 분석')]),
+            ('학습 관리 안내', [('performance-assessment', '수행평가 관리', '일정과 기준에 맞춰 스스로 준비')]),
         ]
         blocks = []
         for number, (heading, items) in enumerate(groups, 1):
@@ -218,6 +219,8 @@ class Builder:
 .hero .nationwide-map{object-fit:contain;object-position:50% 50%}
 #learning-guides .guide-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
 #learning-guides .guide-group{min-width:0}
+#learning-guides .guide-group:last-child{grid-column:1/-1}
+#learning-guides .guide-group:last-child .guide-choices{max-width:calc((100% - 56px)/3)}
 #learning-guides .guide-group-heading{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 #learning-guides .guide-group-heading>span{font-size:10px;color:#8b754e;letter-spacing:.08em}
 #learning-guides h3{font-size:19px;font-weight:600}
@@ -228,7 +231,7 @@ class Builder:
 #learning-guides .guide-choice p{font-size:11px;color:var(--muted);line-height:1.8}
 #learning-guides .guide-choice>span{font-size:16px;color:#8b754e;flex-shrink:0}
 @media(max-width:900px){#learning-guides .guide-groups{gap:20px}#learning-guides h3{font-size:17px}#learning-guides .guide-choice{padding:16px;gap:10px}#learning-guides .guide-group-heading{gap:8px}}
-@media(max-width:640px){#learning-guides .guide-groups{grid-template-columns:1fr;gap:32px}#learning-guides .guide-group-heading{margin-bottom:14px;padding-bottom:12px}#learning-guides h3{font-size:19px}#learning-guides .guide-choices{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#learning-guides .guide-choice{padding:15px 14px;min-height:94px;align-items:flex-start}#learning-guides .guide-choice>span{padding-top:2px}#learning-guides h4{font-size:15px}}
+@media(max-width:640px){#learning-guides .guide-group:last-child .guide-choices{max-width:none}#learning-guides .guide-groups{grid-template-columns:1fr;gap:32px}#learning-guides .guide-group-heading{margin-bottom:14px;padding-bottom:12px}#learning-guides h3{font-size:19px}#learning-guides .guide-choices{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#learning-guides .guide-choice{padding:15px 14px;min-height:94px;align-items:flex-start}#learning-guides .guide-choice>span{padding-top:2px}#learning-guides h4{font-size:15px}}
 """
         content = f'<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / NATIONWIDE LEARNING</p><h1>전국 지역별 과외, 학생에게 맞는 방향부터.</h1><p class="intro">초등·중등·고등 학생을 위한 방문과외와 화상과외를 안내합니다. 지역명보다 먼저 학생의 학습 상태와 필요한 과목을 살펴보고, 희망 지역·일정에 맞는 수업 방식을 상담하세요.</p>{self.consult("consultation_url", "우리 지역 수업 상담하기")}</div>{self.image("korea-network-map")}</div></section><section class="section"><div class="wrap"><h2>17개 시·도 상담 안내</h2><p class="lead">전국 지역의 상담을 안내합니다. 방문수업은 실제 주소·과목·시간을 확인한 뒤 가능 여부를 안내하며, 화상수업은 기기와 학습 환경을 함께 살펴봅니다. 지역별 안내는 검증된 정보를 충분히 확보한 뒤 차례로 공개합니다.</p><div class="region-grid">{"".join(cards)}</div><p class="note">준비 중인 지역의 별도 안내 페이지는 아직 공개하지 않습니다. 특정 동네나 학교의 전담 강사·수업 실적을 의미하지 않습니다.</p></div></section><section class="section soft"><div class="wrap"><h2>지역 상담에 도움이 되는 정보</h2><ul class="checklist"><li>시·도, 시·군·구, 읍·면·동과 방문 희망 주소</li><li>학생의 학년, 필요한 과목과 현재 사용하는 교재</li><li>어려운 단원, 공부 습관과 희망 학습 목표</li><li>가능한 요일·시간과 방문 또는 화상 희망 방식</li></ul><p class="note">학교별 일정·자료는 공식 안내를 바탕으로 확인합니다. 학교명은 상담 맥락을 이해하기 위한 정보이며 학교와의 제휴나 전담 수업을 뜻하지 않습니다.</p></div></section><section class="section" id="learning-guides"><div class="wrap"><h2>학년·과목·수업 방식별로 살펴보기</h2><p class="lead">현재 필요한 학습 내용을 먼저 확인해 보세요.</p><div class="guide-groups">{guides}</div></div></section>{self.cta()}'
         self.outputs[path] = self.layout(path, '전국 지역별 과외 안내 | 초등 중등 고등 방문·화상과외 · 스텝온과외', '전국 17개 시·도 초등·중등·고등 과외 상담 안내. 학생의 학년과 영어·수학 학습 상황에 맞춰 방문과외·화상과외를 비교하고 지역별 실제 진행 조건을 확인하세요.', '전국 지역별 과외', content, group_css)
