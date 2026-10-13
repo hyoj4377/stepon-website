@@ -160,12 +160,14 @@ class Builder:
         return f'<a class="card" href="{esc(self.link(current, "guides/" + page["slug"] + "/index.html"))}"><span class="category">{esc(page["category"])}</span><h3>{esc(page["h1"])}</h3><p>{esc(page["description"])}</p><span class="card-arrow">자세히 알아보기 →</span></a>'
 
     def image(self, name):
-        allowed = {'main-study', 'home-tutoring', 'online-tutoring', 'study-management', 'parent-consulting', 'korea-network-map'}
+        allowed = {'main-study', 'home-tutoring', 'online-tutoring', 'study-management', 'parent-consulting', 'korea-network-map', 'elementary-homework', 'high-homework'}
         if name not in allowed:
             raise ValueError('Unknown photo')
-        alts = {'main-study': '책상에서 교재를 펼치고 공부하는 학생', 'home-tutoring': '학생과 여성 코치가 함께 교재를 살펴보는 방문수업', 'online-tutoring': '노트북으로 선생님과 화상수업을 하는 학생', 'study-management': '플래너와 교재, 태블릿으로 학습을 정리하는 학생', 'parent-consulting': '학부모와 교육 컨설턴트의 학습 상담', 'korea-network-map': '대한민국 본토와 제주도에 빛의 연결망을 표현한 전국 지도'}
+        alts = {'main-study': '책상에서 교재를 펼치고 공부하는 학생', 'home-tutoring': '학생과 여성 코치가 함께 교재를 살펴보는 방문수업', 'online-tutoring': '노트북으로 선생님과 화상수업을 하는 학생', 'study-management': '플래너와 교재, 태블릿으로 학습을 정리하는 학생', 'parent-consulting': '학부모와 교육 컨설턴트의 학습 상담', 'korea-network-map': '대한민국 본토와 제주도에 빛의 연결망을 표현한 전국 지도', 'elementary-homework': '책상에서 교재에 직접 필기하며 숙제를 하는 초등학생', 'high-homework': '교재와 노트북을 활용해 숙제를 하는 고등학생'}
         data = base64.b64encode((ROOT / 'assets/images' / (name + '.webp')).read_bytes()).decode()
-        return f'<img class="photo{" nationwide-map" if name == "korea-network-map" else ""}" src="data:image/webp;base64,{data}" width="1672" height="941" alt="{esc(alts[name])}" decoding="async">'
+        width, height = (1648, 954) if name in {'elementary-homework', 'high-homework'} else (1672, 941)
+        position = ' style="object-fit:cover;object-position:50% 45%"' if name in {'elementary-homework', 'high-homework'} else ''
+        return f'<img class="photo{" nationwide-map" if name == "korea-network-map" else ""}" src="data:image/webp;base64,{data}" width="{width}" height="{height}" alt="{esc(alts[name])}" decoding="async"{position}>'
 
     def layout(self, path, title, description, label, content, extra_css=''):
         home = self.link(path, 'index.html')
