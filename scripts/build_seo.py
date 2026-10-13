@@ -72,6 +72,15 @@ def validate_regions(regions):
     return ids
 
 
+def confirmed_operator_coverage(item):
+    confirmation = item.get('service_confirmation', {})
+    try:
+        checked = date.fromisoformat(confirmation['confirmed_on'])
+        return item['kind'] == 'province' and confirmation.get('confirmed_by') == 'site_operator' and confirmation.get('region_id') == item['id'] and confirmation.get('coverage_confirmed') is True and bool(confirmation.get('scope')) and checked <= date.today()
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
 def publication_problems(item, ids):
     problems = []
     review = item.get('review', {})
@@ -84,8 +93,8 @@ def publication_problems(item, ids):
         except ValueError:
             problems.append('Invalid review date')
     sources = item.get('sources', [])
-    if not any(verified_source(s) for s in sources):
-        problems.append('Verified official source required')
+    if not any(verified_source(s) for s in sources) and not confirmed_operator_coverage(item):
+        problems.append('Verified official source or explicit operator-confirmed province coverage required')
     sections = item.get('sections', [])
     body = item.get('intro', '') + ''.join(''.join(s.get('paragraphs', [])) for s in sections)
     if len(sections) < 3 or len(body) < 600 or any(not s.get('local_relevance') for s in sections):
@@ -238,7 +247,47 @@ class Builder:
         content = f'<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / NATIONWIDE LEARNING</p><h1>전국 지역별 과외, 학생에게 맞는 방향부터.</h1><p class="intro">초등·중등·고등 학생을 위한 방문과외와 화상과외를 안내합니다. 지역명보다 먼저 학생의 학습 상태와 필요한 과목을 살펴보고, 희망 지역·일정에 맞는 수업 방식을 상담하세요.</p>{self.consult("consultation_url", "우리 지역 수업 상담하기")}</div>{self.image("korea-network-map")}</div></section><section class="section"><div class="wrap"><h2>17개 시·도 상담 안내</h2><p class="lead">전국 지역의 상담을 안내합니다. 방문수업은 실제 주소·과목·시간을 확인한 뒤 가능 여부를 안내하며, 화상수업은 기기와 학습 환경을 함께 살펴봅니다. 지역별 안내는 검증된 정보를 충분히 확보한 뒤 차례로 공개합니다.</p><div class="region-grid">{"".join(cards)}</div><p class="note">준비 중인 지역의 별도 안내 페이지는 아직 공개하지 않습니다. 특정 동네나 학교의 전담 강사·수업 실적을 의미하지 않습니다.</p></div></section><section class="section soft"><div class="wrap"><h2>지역 상담에 도움이 되는 정보</h2><ul class="checklist"><li>시·도, 시·군·구, 읍·면·동과 방문 희망 주소</li><li>학생의 학년, 필요한 과목과 현재 사용하는 교재</li><li>어려운 단원, 공부 습관과 희망 학습 목표</li><li>가능한 요일·시간과 방문 또는 화상 희망 방식</li></ul><p class="note">학교별 일정·자료는 공식 안내를 바탕으로 확인합니다. 학교명은 상담 맥락을 이해하기 위한 정보이며 학교와의 제휴나 전담 수업을 뜻하지 않습니다.</p></div></section><section class="section" id="learning-guides"><div class="wrap"><h2>학년·과목·수업 방식별로 살펴보기</h2><p class="lead">현재 필요한 학습 내용을 먼저 확인해 보세요.</p><div class="guide-groups">{guides}</div></div></section>{self.cta()}'
         self.outputs[path] = self.layout(path, '전국 지역별 과외 안내 | 초등 중등 고등 방문·화상과외 · 스텝온과외', '전국 17개 시·도 초등·중등·고등 과외 상담 안내. 학생의 학년과 영어·수학 학습 상황에 맞춰 방문과외·화상과외를 비교하고 지역별 실제 진행 조건을 확인하세요.', '전국 지역별 과외', content, group_css)
 
+    def build_city_guide(self, item):
+        path = region_path(item, self.ids)
+        sections = []
+        for section in item['sections']:
+            paragraphs = ''.join('<p class="lead">' + esc(p) + '</p>' for p in section['paragraphs'])
+            cards = ''
+            if section.get('cards'):
+                cards = '<div class="city-cards">' + ''.join('<a class="card" href="' + esc(self.link(path, 'guides/' + card['slug'] + '/index.html')) + '"><h3>' + esc(card['heading']) + '</h3><p>' + esc(card['description']) + '</p><span class="card-arrow">학습 안내 보기 →</span></a>' for card in section['cards']) + '</div>'
+            if section['heading'] == '서울 25개 자치구 과외 안내':
+                districts = []
+                for district in item['districts']:
+                    child = self.ids.get(district.get('page_id'))
+                    published = child and child['status'] == 'published' and child.get('parent_id') == item['id'] and child['kind'] == 'district'
+                    inside = '<h3>' + esc(district['name']) + ' 과외</h3><p>방문과외 · 화상과외</p>'
+                    districts.append('<a class="district-card" href="' + esc(self.link(path, region_path(child, self.ids))) + '">' + inside + '</a>' if published else '<article class="district-card">' + inside + '</article>')
+                cards = '<div class="district-grid">' + ''.join(districts) + '</div><p class="note">자치구별 상세 페이지는 검증된 안내가 준비된 뒤 연결합니다. 현재는 구별 상세 링크를 제공하지 않습니다.</p>'
+            sections.append('<section class="section city-section"><div class="wrap"><h2>' + esc(section['heading']) + '</h2>' + paragraphs + cards + '</div></section>')
+        faq = ''.join('<details><summary>' + esc(q['question']) + '</summary><p>' + esc(q['answer']) + '</p></details>' for q in item['faq'])
+        content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / SEOUL LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', '서울 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>서울 과외, 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>전국 지역 안내와 함께 살펴보세요.</h2><p class="lead">서울 외 다른 지역의 안내와 수업 방식·학년·과목별 정보를 전국 안내에서 확인할 수 있습니다.</p><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a><p class="note">서울 전 지역 서비스 범위와 자치구 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 실제 수업 일정과 조건은 상담에서 조율합니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / SEOUL</p><h2>우리 동네에서 시작하는 서울 과외 상담</h2><p>학년·과목·자치구와 동네, 희망 수업 방식과 시간을 알려주세요.</p>' + self.consult('consultation_url', '서울 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">시강 일정과 진행 조건은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.</p></div></section>'
+        css = '''
+.city-section:nth-of-type(odd){background:var(--paper)}.city-section h2{font-size:27px}.city-section .lead{max-width:900px;margin-bottom:20px}.city-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:28px}.city-cards h3{font-size:19px}.city-cards .card p{font-size:13px}.district-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-top:28px}.district-card{display:block;min-width:0;padding:22px 18px;border:1px solid var(--line);border-radius:8px;background:#fff}.district-card h3{font-size:17px;font-weight:600}.district-card p{font-size:10px;color:var(--muted);margin-top:9px}.district-card[href]:hover{border-color:var(--gold)}.hero .nationwide-map{object-fit:contain;object-position:50% 50%}
+@media(max-width:900px){.city-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.district-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.city-section h2{font-size:24px}.city-cards{grid-template-columns:1fr;gap:14px}.district-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.district-card{padding:19px 15px}.district-card h3{font-size:16px}}
+'''
+        canonical = self.canonical(path)
+        schema = [
+            {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+                {'@type': 'ListItem', 'position': 1, 'name': '스텝온과외 홈', 'item': self.base},
+                {'@type': 'ListItem', 'position': 2, 'name': '전국 지역별 과외 안내', 'item': self.base + 'regions/'},
+                {'@type': 'ListItem', 'position': 3, 'name': '서울 과외', 'item': canonical}]},
+            {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
+                {'@type': 'Question', 'name': q['question'], 'acceptedAnswer': {'@type': 'Answer', 'text': q['answer']}} for q in item['faq']]},
+        ]
+        structured = json.dumps(schema, ensure_ascii=False).replace('<', r'\u003c')
+        output = self.layout(path, item['title'], item['description'], '서울 과외', content, css)
+        self.outputs[path] = output.replace('</head>', '<script type="application/ld+json">' + structured + '</script></head>')
+
     def build_region(self, item):
+        if item.get('layout') == 'city-guide':
+            self.build_city_guide(item)
+            return
         path = region_path(item, self.ids)
         parent = self.ids.get(item.get('parent_id'))
         parent_link = self.nav_link(path, region_path(parent, self.ids), parent['name'] + ' 안내로 돌아가기') if parent else self.nav_link(path, 'regions/index.html', '전국 지역별 안내로 돌아가기')

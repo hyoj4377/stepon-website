@@ -1,6 +1,8 @@
 """Readiness checks for generated pages, hierarchy, publication gates and links."""
 import copy
 import hashlib
+import html
+import re
 import json
 import sys
 import unittest
@@ -11,7 +13,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from build_seo import Builder, validate_regions, publication_problems, region_path, verified_source
+from build_seo import Builder, validate_regions, publication_problems, region_path, verified_source, confirmed_operator_coverage
 
 
 class Document(HTMLParser):
@@ -157,6 +159,41 @@ class SEOTests(unittest.TestCase):
         self.builder.ids = validate_regions(records)
         with self.assertRaisesRegex(ValueError, 'duplicate'):
             self.builder.build()
+
+    def test_seoul_metadata_districts_faq_and_breadcrumb_match_visible_content(self):
+        item = self.builder.ids['seoul']
+        text = self.builder.outputs['regions/seoul/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/'])
+        self.assertEqual(len(item['districts']), 25)
+        self.assertEqual(len({d['name'] for d in item['districts']}), 25)
+        self.assertEqual(text.count('class="district-card"'), 25)
+        self.assertNotIn('href="gangnam/', text)
+        structured = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        breadcrumb, faq = structured
+        self.assertEqual(breadcrumb['@type'], 'BreadcrumbList')
+        self.assertEqual(breadcrumb['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(len(breadcrumb['itemListElement']), 3)
+        self.assertEqual(faq['@type'], 'FAQPage')
+        self.assertEqual(len(faq['mainEntity']), 5)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
+            self.assertIn('<p>' + html.escape(shown['answer'], quote=True) + '</p>', text)
+
+    def test_operator_confirmation_cannot_bypass_school_or_wrong_region_gates(self):
+        item = copy.deepcopy(self.builder.ids['seoul'])
+        self.assertTrue(confirmed_operator_coverage(item))
+        item['id'] = 'different-region'
+        self.assertFalse(confirmed_operator_coverage(item))
+        item['id'] = 'seoul'
+        item['kind'] = 'school'
+        self.assertFalse(confirmed_operator_coverage(item))
+        item['school'] = {'official_name': '검증용 학교', 'official_code': 'TEST', 'non_affiliation_notice': True}
+        self.assertTrue(publication_problems(item, {}))
 
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
