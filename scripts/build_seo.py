@@ -311,6 +311,11 @@ class Builder:
         css = REGION_CSS + '''
 .neighborhood-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.neighborhood-grid .district-card p{font-size:12px;line-height:1.9}.return-links{display:flex;flex-wrap:wrap;gap:14px}@media(max-width:640px){.neighborhood-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.neighborhood-grid .district-card p{font-size:11px}.return-links{flex-direction:column}.return-links .button{align-self:flex-start}}
 '''
+        columns = item.get('neighborhood_columns', 3)
+        if columns not in {2, 3, 4}:
+            raise ValueError('Unsupported neighborhood grid column count')
+        if columns != 3:
+            css += f'@media(min-width:641px){{.neighborhood-grid{{grid-template-columns:repeat({columns},minmax(0,1fr))}}}}'
         canonical = self.canonical(path)
         schemas = [
             {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [

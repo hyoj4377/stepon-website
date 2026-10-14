@@ -13,9 +13,10 @@
     "guides/science/index.html": "8ca747bf6647e7c07600c21c1645ca8992b9284e836aa936655f67ccd268522c",
     "guides/performance-assessment/index.html": "7d7e493e5203e29ba8d9a954505fb05172a5dca0fd05b656ee85dd4ebe2d14ff",
     "regions/index.html": "291a1627fff577c5019d0c575f34f9cdee4d7d6ac0c083cf8a5523d301c7fecd",
-    "regions/seoul/index.html": "b9528b286032974cfc0f632eb6453bfc4e15daa64c956a13122255661e04a233",
+    "regions/seoul/index.html": "1b2c9f2d3f8f8a7f007cce75b1b82891b0301fae80296b8654808df25566d5fc",
     "regions/seoul/gangnam/index.html": "d916b5d3c8cbbeaabc1ffb068350b8b8fbdcb987ec7b56d3ca578fcb9e613d00",
     "regions/seoul/gangdong/index.html": "56609d5abe64ba01d7e02ac9d4f6246a22b8ff98564e452f901442cceaec3e04",
-    "sitemap.xml": "1f4072963e9ee0b46c558191f57b5d1df83d75fe6fc46d35380bf4db1b56090d"
+    "regions/seoul/gangbuk/index.html": "4155d052df9d20d6cb401d0d8d525038e141bd080fb972aef0cdc764fb596490",
+    "sitemap.xml": "936794ec46c481b34d57e57b5ab141eed85334657c71929c6afeba93dea03979"
   }
 }
