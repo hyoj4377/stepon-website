@@ -221,6 +221,27 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertTrue('<summary>' + html.escape(shown['question'], quote=True) + '</summary>' in text)
 
+    def test_gangdong_content_metadata_schema_and_seoul_entry(self):
+        item = self.builder.ids['seoul-gangdong']
+        text = self.builder.outputs['regions/seoul/gangdong/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/gangdong/'])
+        self.assertEqual(len(item['neighborhoods']), 8)
+        self.assertEqual(text.count('class="district-card"'), 8)
+        self.assertFalse('강남구' in text)
+        self.assertFalse(any('/godeok/' in a['href'] for a in doc.links))
+        self.assertTrue('href="gangdong/"' in self.builder.outputs['regions/seoul/index.html'])
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['name'], '강동구 과외')
+        self.assertEqual(service['areaServed']['name'], '서울특별시 강동구')
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertTrue('<summary>' + html.escape(shown['question'], quote=True) + '</summary>' in text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))
