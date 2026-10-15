@@ -322,6 +322,30 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertTrue('<summary>' + html.escape(shown['question'], quote=True) + '</summary>' in text)
 
+    def test_guro_metadata_faq_and_counseling_only_service(self):
+        item = self.builder.ids['seoul-guro']
+        text = self.builder.outputs['regions/seoul/guro/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/guro/'])
+        self.assertEqual(len(item['neighborhoods']), 10)
+        self.assertFalse(any('/gaebong/' in a['href'] for a in doc.links))
+        self.assertTrue('href="guro/"' in self.builder.outputs['regions/seoul/index.html'])
+        self.assertTrue(item['cta_heading'] in text)
+        self.assertTrue(item['cta_note'] in text)
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['name'], '구로구 과외')
+        self.assertEqual(service['areaServed']['name'], '서울특별시 구로구')
+        self.assertIn('상담', service['serviceType'])
+        self.assertIn('배정 가능 여부', service['description'])
+        self.assertFalse(any(k in service for k in ['offers', 'aggregateRating', 'review', 'address']))
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertTrue('<summary>' + html.escape(shown['question'], quote=True) + '</summary>' in text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))
