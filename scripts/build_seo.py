@@ -194,7 +194,13 @@ class Builder:
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#112c40"><title>{esc(title)}</title><meta name="description" content="{esc(description)}"><link rel="canonical" href="{esc(self.canonical(path))}"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(self.canonical(path))}"><meta property="og:type" content="website"><style>{CSS}{extra_css}{(ROOT / "assets/styles/readability.css").read_text()}</style></head>
 <body><a class="skip" href="#main">본문으로 바로가기</a><header><div class="wrap header-inner">{brand}<nav aria-label="안내 페이지 탐색">{nav}</nav></div></header>
 <div class="wrap breadcrumb"><a href="{esc(home)}">홈</a><span aria-hidden="true">/</span><a href="{esc(hub)}">전국 과외 안내</a><span aria-hidden="true">/</span><span aria-current="page">{esc(label)}</span></div>
-<main id="main">{content}</main><footer class="footer"><div class="wrap">{brand}<div class="footer-links">{self.nav_link(path, 'regions/index.html', '전국 과외 안내')}{self.phone()}<a href="{esc(self.site['kakao_url'])}" target="_blank" rel="noopener noreferrer">카카오채널 ↗</a><a href="{esc(self.site['blog_url'])}" target="_blank" rel="noopener noreferrer">블로그 ↗</a></div><p class="copyright">STEP ON · 학생의 성장을 함께 디자인합니다</p></div></footer><a class="mobile-cta" href="{esc(self.site['consultation_url'])}" target="_blank" rel="noopener noreferrer">무료 시강 상담 <span aria-hidden="true">↗</span></a></body></html>\n'''
+<main id="main">{content}</main><footer class="footer"><div class="wrap">{brand}<div class="footer-links">{self.nav_link(path, 'regions/index.html', '전국 과외 안내')}{self.phone()}<a href="{esc(self.site['kakao_url'])}" target="_blank" rel="noopener noreferrer">카카오채널 ↗</a><a href="{esc(self.site['blog_url'])}" target="_blank" rel="noopener noreferrer">블로그 ↗</a></div><p class="copyright">STEP ON · 학생의 성장을 함께 디자인합니다</p></div></footer><a class="mobile-cta" href="{esc(self.site['consultation_url'])}" target="_blank" rel="noopener noreferrer">무료 시강 상담 <span aria-hidden="true">↗</span></a>{self.floating_consult()}</body></html>\n'''
+
+    def floating_consult(self):
+        component = (ROOT / 'components/floating-consult.html').read_text(encoding='utf-8')
+        for key in ('phone_uri', 'phone', 'kakao_url', 'consultation_url'):
+            component = component.replace('{{' + key + '}}', esc(self.site[key]))
+        return '<!-- floating-consult:start -->\n' + component + '<!-- floating-consult:end -->'
 
     def cta(self, key='consultation_url'):
         return f'<section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP</p><h2>학생에게 맞는 다음 한 걸음을 함께 찾습니다.</h2><p>학년·과목·희망 지역과 수업 방식을 알려주세요.</p>{self.consult(key, "무료 시강 및 상담 신청") }<br>{self.phone()}<p class="note">방문 가능 지역, 과목, 일정과 시강 조건은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.</p></div></section>'
@@ -415,8 +421,15 @@ class Builder:
         home, count = re.subn(r'<style id="readability">.*?</style>', lambda _: common_style, original_home, flags=re.S)
         if count != 1:
             raise ValueError('Expected exactly one homepage readability style block')
+        floating = self.floating_consult()
+        if '<!-- floating-consult:start -->' in home:
+            home, count = re.subn(r'<!-- floating-consult:start -->.*?<!-- floating-consult:end -->', lambda _: floating, home, flags=re.S)
+            if count != 1:
+                raise ValueError('Expected exactly one floating consultation component')
+        else:
+            home = home.replace('</body>', floating + '</body>')
         if check and home != original_home:
-            raise ValueError('Regenerate homepage readability styles: python3 scripts/build_seo.py')
+            raise ValueError('Regenerate homepage shared components: python3 scripts/build_seo.py')
         files = {path: hashlib.sha256(content.encode()).hexdigest() for path, content in self.outputs.items()}
         manifest = json.dumps({'schema_version': 1, 'files': files}, ensure_ascii=False, indent=2) + '\n'
         if check:

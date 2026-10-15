@@ -1,0 +1,46 @@
+<style>
+.stepon-floating{position:fixed;right:20px;bottom:24px;z-index:40;font-family:inherit;color:#102b40}
+.stepon-floating-links{display:flex;flex-direction:column;gap:10px}
+.stepon-floating-link{display:flex;align-items:center;gap:11px;width:176px;min-height:54px;padding:12px 17px;border:1px solid transparent;border-radius:32px;text-decoration:none;box-shadow:0 3px 14px #102b401a;line-height:1.5;font-size:13px;font-weight:600;transition:box-shadow .15s}
+.stepon-floating-link:hover{box-shadow:0 4px 18px #102b4030}
+.stepon-floating svg{width:21px;height:21px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.stepon-floating-link span{display:block}.stepon-floating-link small{display:block;font-size:11px;font-weight:400;letter-spacing:.01em}
+.stepon-floating-phone{background:#102b40;color:#fff}.stepon-floating-kakao{background:#fee500;color:#302810}.stepon-floating-trial{background:#fffdf7;border-color:#b69a68;color:#102b40}.stepon-floating-trial svg{color:#806939}
+.stepon-floating a:focus-visible,.stepon-floating button:focus-visible{outline:3px solid #28638e;outline-offset:4px}
+.stepon-floating-toggle{display:none}
+@media(max-width:640px){
+ .stepon-floating{right:14px;bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+ .stepon-floating-links{gap:8px}.stepon-floating-link{width:158px;min-height:48px;padding:10px 14px;font-size:12px}
+ .stepon-floating.enhanced .stepon-floating-toggle{display:flex;align-items:center;justify-content:center;gap:7px;margin:10px 0 0 auto;min-height:46px;padding:11px 16px;background:#102b40;color:#fff;border:1px solid #b69a68;border-radius:28px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 3px 14px #102b4020}
+ .stepon-floating.enhanced:not(.is-open) .stepon-floating-links{display:none}
+ .stepon-floating-toggle svg{width:17px;height:17px}
+}
+@media(prefers-reduced-motion:reduce){.stepon-floating-link{transition:none}}
+</style>
+<aside class="stepon-floating" aria-label="빠른 상담 메뉴">
+ <div class="stepon-floating-links" id="stepon-floating-links">
+  <a class="stepon-floating-link stepon-floating-phone" href="{{phone_uri}}" aria-label="전화 상담 {{phone}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h4l2 5-3 2a16 16 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2C10 20 4 14 3 5a2 2 0 0 1 2-2Z"/></svg><span>전화 상담<small>{{phone}}</small></span></a>
+  <a class="stepon-floating-link stepon-floating-kakao" href="{{kakao_url}}" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 상담, 새 탭"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11c0 5-5 8-10 7l-5 3 1-5C0 11 4 3 12 3c5 0 9 3 9 8Z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg><span>카카오톡 상담</span></a>
+  <a class="stepon-floating-link stepon-floating-trial" href="{{consultation_url}}" target="_blank" rel="noopener noreferrer" aria-label="무료체험 신청, 새 탭"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 2h6v4H9zM9 13l2 2 4-5"/></svg><span>무료체험 신청</span></a>
+ </div>
+ <button class="stepon-floating-toggle" type="button" aria-expanded="false" aria-controls="stepon-floating-links" aria-label="전화·카카오톡·무료체험 상담 메뉴 열기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H9l-5 4Z"/></svg><span>상담 메뉴</span></button>
+</aside>
+<script>
+(() => {
+ const root=document.querySelector('.stepon-floating');
+ if(!root)return;
+ const button=root.querySelector('.stepon-floating-toggle');
+ const mobile=matchMedia('(max-width:640px)');
+ const setOpen=open=>{
+  root.classList.toggle('is-open',open);
+  button.setAttribute('aria-expanded',String(open));
+  button.setAttribute('aria-label',`전화·카카오톡·무료체험 상담 메뉴 ${open?'닫기':'열기'}`);
+  button.querySelector('span').textContent=open?'상담 닫기':'상담 메뉴';
+ };
+ root.classList.add('enhanced');
+ button.addEventListener('click',()=>setOpen(!root.classList.contains('is-open')));
+ root.addEventListener('keydown',e=>{if(e.key==='Escape'&&mobile.matches){setOpen(false);button.focus();}});
+ document.addEventListener('pointerdown',e=>{if(mobile.matches&&!root.contains(e.target))setOpen(false);});
+ mobile.addEventListener('change',()=>setOpen(false));
+})();
+</script>
