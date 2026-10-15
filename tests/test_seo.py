@@ -346,6 +346,34 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertTrue('<summary>' + html.escape(shown['question'], quote=True) + '</summary>' in text)
 
+    def test_geumcheon_publication_links_faq_and_conditional_coverage(self):
+        item = self.builder.ids['seoul-geumcheon']
+        path = 'regions/seoul/geumcheon/index.html'
+        text = self.builder.outputs[path]
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/geumcheon/'])
+        self.assertEqual([p['name'] for p in item['neighborhoods']], ['독산동', '시흥동', '가산동'])
+        self.assertTrue(all(p['page_id'] is None for p in item['neighborhoods']))
+        self.assertIn('href="geumcheon/"', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn('href="../"', text)
+        self.assertIn(self.builder.base + 'regions/seoul/geumcheon/', self.builder.outputs['sitemap.xml'])
+        self.assertIn('배정 가능 여부', item['intro'])
+        self.assertIn('선행에 앞서', text)
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(service['areaServed']['name'], '서울특별시 금천구')
+        self.assertIn('배정 가능 여부', service['description'])
+        self.assertFalse(any(k in service for k in ['offers', 'aggregateRating', 'review', 'address']))
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
+        self.assertIn('class="stepon-floating"', text)
+        self.assertIn('https://www.instagram.com/stepon_seona/', text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))
