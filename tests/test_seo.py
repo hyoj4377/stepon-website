@@ -282,6 +282,26 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertTrue('<summary>' + html.escape(shown['question'], quote=True) + '</summary>' in text)
 
+    def test_gwanak_metadata_living_areas_faq_and_service(self):
+        item = self.builder.ids['seoul-gwanak']
+        text = self.builder.outputs['regions/seoul/gwanak/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/gwanak/'])
+        self.assertEqual(len(item['neighborhoods']), 5)
+        self.assertFalse(any('/bongcheon/' in a['href'] for a in doc.links))
+        self.assertTrue('href="gwanak/"' in self.builder.outputs['regions/seoul/index.html'])
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['name'], '관악구 과외')
+        self.assertEqual(service['areaServed']['name'], '서울특별시 관악구')
+        self.assertFalse(any(k in service for k in ['offers', 'aggregateRating', 'review', 'address']))
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertTrue('<summary>' + html.escape(shown['question'], quote=True) + '</summary>' in text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))
