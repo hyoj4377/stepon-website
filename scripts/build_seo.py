@@ -191,7 +191,7 @@ class Builder:
         brand = f'<a class="brand" href="{esc(home)}"><img src="{self.logo}" width="160" height="160" alt="스텝온과외 공식 로고"><span>스텝온과외</span></a>'
         nav = ''.join(self.nav_link(path, target, name) for target, name in [('index.html', '홈'), ('regions/index.html', '전국 안내'), ('guides/visit/index.html', '방문과외'), ('guides/online/index.html', '화상과외')])
         return f'''<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#112c40"><title>{esc(title)}</title><meta name="description" content="{esc(description)}"><link rel="canonical" href="{esc(self.canonical(path))}"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(self.canonical(path))}"><meta property="og:type" content="website"><style>{CSS}{extra_css}</style></head>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#112c40"><title>{esc(title)}</title><meta name="description" content="{esc(description)}"><link rel="canonical" href="{esc(self.canonical(path))}"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{esc(self.canonical(path))}"><meta property="og:type" content="website"><style>{CSS}{extra_css}{(ROOT / "assets/styles/readability.css").read_text()}</style></head>
 <body><a class="skip" href="#main">본문으로 바로가기</a><header><div class="wrap header-inner">{brand}<nav aria-label="안내 페이지 탐색">{nav}</nav></div></header>
 <div class="wrap breadcrumb"><a href="{esc(home)}">홈</a><span aria-hidden="true">/</span><a href="{esc(hub)}">전국 과외 안내</a><span aria-hidden="true">/</span><span aria-current="page">{esc(label)}</span></div>
 <main id="main">{content}</main><footer class="footer"><div class="wrap">{brand}<div class="footer-links">{self.nav_link(path, 'regions/index.html', '전국 과외 안내')}{self.phone()}<a href="{esc(self.site['kakao_url'])}" target="_blank" rel="noopener noreferrer">카카오채널 ↗</a><a href="{esc(self.site['blog_url'])}" target="_blank" rel="noopener noreferrer">블로그 ↗</a></div><p class="copyright">STEP ON · 학생의 성장을 함께 디자인합니다</p></div></footer><a class="mobile-cta" href="{esc(self.site['consultation_url'])}" target="_blank" rel="noopener noreferrer">무료 시강 상담 <span aria-hidden="true">↗</span></a></body></html>\n'''
@@ -408,6 +408,15 @@ class Builder:
 
     def save(self, check=False):
         old = self.build()
+        # Only the marked common style is synchronized; homepage content stays authored by hand.
+        homepage = ROOT / 'index.html'
+        original_home = homepage.read_text(encoding='utf-8')
+        common_style = '<style id="readability">\n' + (ROOT / 'assets/styles/readability.css').read_text() + '</style>'
+        home, count = re.subn(r'<style id="readability">.*?</style>', lambda _: common_style, original_home, flags=re.S)
+        if count != 1:
+            raise ValueError('Expected exactly one homepage readability style block')
+        if check and home != original_home:
+            raise ValueError('Regenerate homepage readability styles: python3 scripts/build_seo.py')
         files = {path: hashlib.sha256(content.encode()).hexdigest() for path, content in self.outputs.items()}
         manifest = json.dumps({'schema_version': 1, 'files': files}, ensure_ascii=False, indent=2) + '\n'
         if check:
@@ -438,6 +447,8 @@ class Builder:
                 full.parent.mkdir(parents=True, exist_ok=True)
                 full.write_text(content, encoding='utf-8')
             MANIFEST.write_text(manifest, encoding='utf-8')
+            if home != original_home:
+                homepage.write_text(home, encoding='utf-8')
         print(('Checked' if check else 'Generated') + f' {len(self.outputs)-1} published pages; sitemap {len(self.outputs)} URLs; {len([r for r in self.regions if r["status"] == "draft"])} region drafts excluded.')
 
 

@@ -72,6 +72,68 @@
 @media(max-width:640px){.header-phone{gap:7px;margin-right:10px;padding-left:14px}.header-phone-icon{width:17px;height:17px}.header-phone-number{font-size:12px}}
 @media(max-width:420px){.header-phone{width:40px;margin-right:6px;padding-left:0;justify-content:center;border-left:0}.header-phone-copy{display:none}}
 </style>
+<style id="readability">
+/* 공통 가독성 보정. 빌드 시 서브 페이지에 인라인 포함합니다.
+   python3 scripts/build_seo.py 실행 시 메인 인라인 스타일도 동기화합니다. */
+:root{--navy:#102b40;--ink:#233b4b;--muted:#4e606c;--paper:#f8f6f0;--line:#d6dfe3;--accent:#74603b}
+main h1,main h2,main h3,main h4{color:var(--navy)}
+main .hero h1{font-weight:700;line-height:1.45}
+main .section h2{font-weight:700}
+main .eyebrow,main .category{color:var(--accent);font-size:11px;font-weight:600}
+main .hero{background:#f0f4f6}
+main .button{font-weight:600;font-size:14px;transition:background .18s,color .18s,transform .18s}
+main .button:not(.secondary),main .gold{background:var(--navy);color:#fff}
+main .button:not(.secondary):hover,main .gold:hover{background:#214e70}
+main .secondary{background:transparent;color:var(--navy);border:1px solid #8a9ca8}
+main .secondary:hover{background:#e4edf2;border-color:var(--navy)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #28638e;outline-offset:4px}
+main .card,main .level-card,main .region-card,main .district-card,main .guide-choice{transition:border-color .18s,background .18s}
+main .card h3,main .level-card h4,main .region-card h3,main .district-card h3{font-weight:650}
+main a.card:hover,main a.level-card:hover,main .district-card[href]:hover{border-color:#788f9f}
+main .card p,main .region-card p,main .district-card p{color:var(--muted);font-size:14px}
+main .region-card .region-state{color:var(--accent);font-size:12px}
+main .intro,main .lead,main .article-section p,main .article-section ul,main .section ul.checklist{font-size:16px;color:var(--muted);line-height:1.95}
+main .aside p,main .faq details p{font-size:15px;color:var(--muted)}
+main .faq summary{font-size:16px;font-weight:600;color:var(--navy)}
+main .note{font-size:12px;color:var(--muted)}
+main .cta h2,main .care h2,main .care h3{color:#fff}
+main .cta p,main .cta .note,main .care-item p,main .care-heading>p:not(.eyebrow){color:#c9d5de}
+main .care .eyebrow{color:#dcc696}
+main .cta .button{background:#fff;color:var(--navy)}
+main .cta .button:hover{background:#e2ebf2}
+main .hero-description,main .about-copy>p,main .level-card>p,main .format-card p:not(.eyebrow),main #reviews blockquote,main .trial-grid>div>p:not(.eyebrow),main .nationwide-description{font-size:15px;color:var(--muted)}
+main .hero-footnote,main .section-note,main .section-note>span,main .contact-status,main .review-author,main .social-status,main .nationwide-note{color:var(--muted);font-size:12px}
+main .level-index,main .level-card h3 span,main .format-number{color:var(--muted)}
+main .level-top .eyebrow,main .format-card .eyebrow,main #classes .service-label{font-size:11px;color:var(--accent)}
+main .tags span{font-size:11px;color:var(--muted);background:#edf2f4}
+main .format-card h3,main .care-item h3,main .trial-process h3,main .social-card h3{font-weight:650}
+main .hero-strip .container{color:var(--muted)}
+main .journey-heading>span,main .journey-caption,main .journey-stage p{color:var(--muted)}
+main .journey-stage p{font-size:11px}
+main #reviews .review-result,main .nationwide-action>span{color:var(--accent)}
+main .trial{background:#edf2f5}
+main .trial-process p,main .social-card p,main #classes .service-consult p{font-size:14px}
+main .trial small{font-size:12px;color:var(--muted)}
+main #classes .service-consult-button{font-size:14px;font-weight:600}
+main .section-heading>p{font-size:14px}
+main #learning-guides .guide-choice p{font-size:13px}
+@media(max-width:640px){
+ main .intro,main .lead,main .article-section p,main .article-section ul,main .section ul.checklist{font-size:15px}
+ main .hero-description,main .about-copy>p,main .level-card>p,main .format-card p:not(.eyebrow),main #reviews blockquote,main .trial-grid>div>p:not(.eyebrow),main .nationwide-description{font-size:14px}
+ main .button{font-size:13px;gap:14px}
+ main .journey-stage p{font-size:12px;white-space:normal}
+ main .card p,main .region-card p,main .district-card p{font-size:13px}
+ main .section h2{line-height:1.45}
+ main #classes .service-consult-button{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){main .button,main .card,main .level-card,main .region-card,main .district-card,main .guide-choice{transition:none}}
+
+main .journey-heading>p,main .journey-stage:last-child .journey-point,main #learning-guides .guide-group-heading>span,main #learning-guides .guide-choice>span{color:var(--accent)}
+main .social-arrow{color:var(--muted)}
+main .city-cards .card p,main .neighborhood-grid .district-card p{font-size:14px;color:var(--muted)}
+main .cta a:focus-visible,main .care a:focus-visible{outline-color:#fff}
+@media(max-width:640px){main .city-cards .card p,main .neighborhood-grid .district-card p{font-size:13px}}
+</style>
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 바로가기</a>
