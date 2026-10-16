@@ -529,6 +529,33 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
 
+    def test_seocho_living_areas_study_priorities_and_publication(self):
+        item = self.builder.ids['seoul-seocho']
+        text = self.builder.outputs['regions/seoul/seocho/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/seocho/'])
+        self.assertEqual([p['name'] for p in item['neighborhoods']], ['서초 생활권', '반포·잠원 생활권', '방배 생활권', '양재·우면 생활권', '내곡 생활권'])
+        self.assertTrue(all(p['page_id'] is None for p in item['neighborhoods']))
+        for name in ['서초동', '반포동', '잠원동', '방배동', '양재동', '우면동', '내곡동', '신원동', '염곡동', '원지동']:
+            self.assertIn(name, text)
+        self.assertIn('내신과 수능 공부를 병행할 때 학습 우선순위를 정하는 방법', text)
+        self.assertIn('학교 시험과 모의고사의 오답', text)
+        self.assertIn('무리한 선행보다 개념 이해', text)
+        self.assertIn('href="seocho/"', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(service['areaServed']['name'], '서울특별시 서초구')
+        self.assertIn('배정 가능 여부', service['description'])
+        self.assertFalse(any(k in service for k in ['offers', 'aggregateRating', 'review', 'address']))
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))
