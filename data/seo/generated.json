@@ -13,7 +13,7 @@
     "guides/science/index.html": "eaab0c16049cba346d78fd412a0b702fc8f45c0d617c7a1b9cf443f53f95a1f9",
     "guides/performance-assessment/index.html": "0214f9d79b1809df0351c39b0056ae28776c417fd9fbc0da097757c8fbb7217d",
     "regions/index.html": "402ecc05dcf92be0c80433f323bb1316b32cd3fe47c3de4bebc7a1d83a25b2f2",
-    "regions/seoul/index.html": "59f5ebc396a38163eb3c984f3bdeca2be8617400c8c822f9c34b08ec583d00d5",
+    "regions/seoul/index.html": "63c6e9938adfad59a048c5aff80867adcea1d031e65b806a7e34649deeaa19ba",
     "regions/seoul/gangnam/index.html": "00c6801cbeedd32ae263c57020fdc0f2ac8d6221dd85258ad750de1a59f6783e",
     "regions/seoul/gangdong/index.html": "c529b035d238270ea218bd8e0d771ee7adf794a5fb22dac22f2083685b652b51",
     "regions/seoul/gangbuk/index.html": "dd475bf7433baf04337296d25054d8cccbbe2fe4baa818811d67bd111a304194",
@@ -23,6 +23,7 @@
     "regions/seoul/guro/index.html": "3fc1a9eeed14ae5b0457fbd000397eba0698231c081a3cda171b3d892085be7b",
     "regions/seoul/geumcheon/index.html": "30d1a8de0d4d6601d388be6ee9482127dcdd90aa3ea3bdd12fe3a0ba70987a4e",
     "regions/seoul/nowon/index.html": "1b148395e8e38495699d28b4da8f669fc3ef37145dcd49ca0dadd2e56dd53961",
-    "sitemap.xml": "9373bc064d263f6104f969c3a40985ba0fd8387ef18b4ae14110493a4b7e7101"
+    "regions/seoul/dobong/index.html": "d4699f9cd2879c98ac52fea84d8d11a4ce3f0b0418f2b73a0b7dfaf5a5e4212b",
+    "sitemap.xml": "f8d8d8d8c449590c39464d38096bbe676ca6790bd7178b3a5141da229e3afb43"
   }
 }

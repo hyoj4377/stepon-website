@@ -403,6 +403,30 @@ class SEOTests(unittest.TestCase):
         self.assertIn('class="stepon-floating"', text)
         self.assertIn('https://www.instagram.com/stepon_seona/', text)
 
+    def test_dobong_transition_guidance_and_publication(self):
+        item = self.builder.ids['seoul-dobong']
+        text = self.builder.outputs['regions/seoul/dobong/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/dobong/'])
+        self.assertEqual([p['name'] for p in item['neighborhoods']], ['창동', '쌍문동', '방학동', '도봉동'])
+        self.assertTrue(all(p['page_id'] is None for p in item['neighborhoods']))
+        self.assertIn('예비중', text)
+        self.assertIn('예비고', text)
+        self.assertIn('href="dobong/"', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(service['areaServed']['name'], '서울특별시 도봉구')
+        self.assertIn('배정 가능 여부', service['description'])
+        self.assertFalse(any(k in service for k in ['offers', 'aggregateRating', 'review', 'address']))
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))
