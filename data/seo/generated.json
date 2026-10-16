@@ -13,7 +13,7 @@
     "guides/science/index.html": "eaab0c16049cba346d78fd412a0b702fc8f45c0d617c7a1b9cf443f53f95a1f9",
     "guides/performance-assessment/index.html": "0214f9d79b1809df0351c39b0056ae28776c417fd9fbc0da097757c8fbb7217d",
     "regions/index.html": "402ecc05dcf92be0c80433f323bb1316b32cd3fe47c3de4bebc7a1d83a25b2f2",
-    "regions/seoul/index.html": "84e472e720fc034e6dae551dc4740075db45f648beb20772f6ab6640201d3ac5",
+    "regions/seoul/index.html": "dd575fec9e995837ef349b071148c748484f98b18240813b9bef16176297dbd8",
     "regions/seoul/gangnam/index.html": "00c6801cbeedd32ae263c57020fdc0f2ac8d6221dd85258ad750de1a59f6783e",
     "regions/seoul/gangdong/index.html": "c529b035d238270ea218bd8e0d771ee7adf794a5fb22dac22f2083685b652b51",
     "regions/seoul/gangbuk/index.html": "dd475bf7433baf04337296d25054d8cccbbe2fe4baa818811d67bd111a304194",
@@ -25,6 +25,7 @@
     "regions/seoul/nowon/index.html": "1b148395e8e38495699d28b4da8f669fc3ef37145dcd49ca0dadd2e56dd53961",
     "regions/seoul/dobong/index.html": "d4699f9cd2879c98ac52fea84d8d11a4ce3f0b0418f2b73a0b7dfaf5a5e4212b",
     "regions/seoul/dongdaemun/index.html": "516d71c6e8fdd4dfa20e43a4dca6433791e16b633f0c1327ffa3df31cde116f9",
-    "sitemap.xml": "d0d4488a03a05ff6aac5265434b9b963f551645b17af6995fe5163cf80b39076"
+    "regions/seoul/dongjak/index.html": "1117659c9de769f654593445ddc49c32113dff4f8db20f57d0bcc837f2fa9a2d",
+    "sitemap.xml": "b030c14ed4dad3b02b1477f4c7d6f1e8fcd0e22fd197ad88e6f2be6b0189dc2c"
   }
 }
