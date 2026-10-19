@@ -270,12 +270,15 @@ class Builder:
                 cards = '<div class="city-cards">' + ''.join('<a class="card" href="' + esc(self.link(path, 'guides/' + card['slug'] + '/index.html')) + '"><h3>' + esc(card['heading']) + '</h3><p>' + esc(card['description']) + '</p><span class="card-arrow">학습 안내 보기 →</span></a>' for card in section['cards']) + '</div>'
             if section['heading'] == '서울 25개 자치구 과외 안내':
                 districts = []
+                published_count = 0
                 for district in item['districts']:
                     child = self.ids.get(district.get('page_id'))
                     published = child and child['status'] == 'published' and child.get('parent_id') == item['id'] and child['kind'] == 'district'
+                    published_count += bool(published)
                     inside = '<h3>' + esc(district['name']) + ' 과외</h3><p>방문과외 · 화상과외</p>'
                     districts.append('<a class="district-card" href="' + esc(self.link(path, region_path(child, self.ids))) + '">' + inside + '</a>' if published else '<article class="district-card">' + inside + '</article>')
-                cards = '<div class="district-grid">' + ''.join(districts) + '</div><p class="note">자치구별 상세 페이지는 검증된 안내가 준비된 뒤 연결합니다. 준비된 구별 상세 안내부터 연결하며, 나머지 자치구는 아직 별도 상세 링크가 없습니다.</p>'
+                availability = f'서울 {published_count}개 자치구 상세 안내가 모두 연결되어 있습니다. 동네·학년·과목에 맞는 안내와 상담 방법을 확인해 보세요.' if published_count == len(item['districts']) else '자치구별 상세 페이지는 검증된 안내가 준비된 뒤 연결합니다. 준비된 구별 상세 안내부터 연결하며, 나머지 자치구는 아직 별도 상세 링크가 없습니다.'
+                cards = '<div class="district-grid">' + ''.join(districts) + '</div><p class="note">' + availability + '</p>'
             sections.append('<section class="section city-section"><div class="wrap"><h2>' + esc(section['heading']) + '</h2>' + paragraphs + cards + '</div></section>')
         faq = ''.join('<details><summary>' + esc(q['question']) + '</summary><p>' + esc(q['answer']) + '</p></details>' for q in item['faq'])
         content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / SEOUL LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', '서울 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>서울 과외, 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>전국 지역 안내와 함께 살펴보세요.</h2><p class="lead">서울 외 다른 지역의 안내와 수업 방식·학년·과목별 정보를 전국 안내에서 확인할 수 있습니다.</p><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a><p class="note">서울 전 지역 서비스 범위와 자치구 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 실제 수업 일정과 조건은 상담에서 조율합니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / SEOUL</p><h2>우리 동네에서 시작하는 서울 과외 상담</h2><p>학년·과목·자치구와 동네, 희망 수업 방식과 시간을 알려주세요.</p>' + self.consult('consultation_url', '서울 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">시강 일정과 진행 조건은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.</p></div></section>'

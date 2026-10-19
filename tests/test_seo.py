@@ -27,10 +27,23 @@ class Document(HTMLParser):
         self.title = []
         self.in_title = False
         self.description = []
+        self.lang = None
+        self.viewport = []
+        self.robots = []
+        self.og = {}
         self.feed(text)
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == 'html':
+            self.lang = attrs.get('lang')
+        if tag == 'meta':
+            if attrs.get('name') == 'viewport':
+                self.viewport.append(attrs.get('content', ''))
+            if attrs.get('name') == 'robots':
+                self.robots.append(attrs.get('content', ''))
+            if attrs.get('property', '').startswith('og:'):
+                self.og.setdefault(attrs['property'], []).append(attrs.get('content', ''))
         if 'id' in attrs:
             self.ids.add(attrs['id'])
         if tag == 'a':
@@ -858,6 +871,43 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(visible['question'], structured['name'])
             self.assertEqual(visible['answer'], structured['acceptedAnswer']['text'])
             self.assertIn(html.escape(visible['answer']), text)
+
+    def test_all_seoul_district_social_metadata_and_schemas_match_visible_content(self):
+        for district in self.builder.ids['seoul']['districts']:
+            item = self.builder.ids[district['page_id']]
+            path = region_path(item, self.builder.ids)
+            text = self.builder.outputs[path]
+            doc = Document(text)
+            self.assertEqual(doc.lang, 'ko', path)
+            self.assertEqual(doc.viewport, ['width=device-width, initial-scale=1'], path)
+            self.assertFalse(any('noindex' in r.lower() or 'nofollow' in r.lower() for r in doc.robots), path)
+            self.assertEqual(doc.og.get('og:title'), [item['title']], path)
+            self.assertEqual(doc.og.get('og:description'), [item['description']], path)
+            self.assertEqual(doc.og.get('og:url'), [self.builder.canonical(path)], path)
+            schema = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+            breadcrumb, service, faq = schema
+            self.assertEqual(breadcrumb['itemListElement'][-1]['item'], self.builder.canonical(path), path)
+            self.assertEqual(service['url'], self.builder.canonical(path), path)
+            self.assertEqual(service['areaServed']['name'], item['official_name'], path)
+            self.assertFalse(any(k in service for k in ['address', 'review', 'aggregateRating', 'offers']), path)
+            self.assertEqual(len(faq['mainEntity']), len(item['faq']), path)
+            for shown, structured in zip(item['faq'], faq['mainEntity']):
+                self.assertEqual(structured['name'], shown['question'], path)
+                self.assertEqual(structured['acceptedAnswer']['text'], shown['answer'], path)
+                self.assertIn('<summary>' + html.escape(shown['question']) + '</summary>', text, path)
+                self.assertIn('<p>' + html.escape(shown['answer']) + '</p>', text, path)
+
+    def test_seoul_publication_notice_tracks_available_districts(self):
+        path = 'regions/seoul/index.html'
+        complete = self.builder.outputs[path]
+        self.assertIn('서울 25개 자치구 상세 안내가 모두 연결되어 있습니다.', complete)
+        self.assertNotIn('나머지 자치구는 아직 별도 상세 링크가 없습니다.', complete)
+        self.builder.ids['seoul-gangnam']['status'] = 'draft'
+        self.builder.build_city_guide(self.builder.ids['seoul'])
+        partial = self.builder.outputs[path]
+        self.assertNotIn('25개 자치구 상세 안내가 모두 연결', partial)
+        self.assertIn('나머지 자치구는 아직 별도 상세 링크가 없습니다.', partial)
+        self.assertNotIn('href="gangnam/"', partial)
 
     def test_confirmed_individual_lessons_render_in_relevant_guides(self):
         confirmation = self.builder.site['lesson_format']
