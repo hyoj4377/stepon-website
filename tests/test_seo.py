@@ -638,6 +638,36 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
 
+    def test_yangcheon_legal_and_administrative_dongs_and_planning(self):
+        item = self.builder.ids['seoul-yangcheon']
+        text = self.builder.outputs['regions/seoul/yangcheon/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/yangcheon/'])
+        self.assertEqual([p['name'] for p in item['neighborhoods']], ['목동 생활권', '신정동 생활권', '신월동 생활권'])
+        expected = [[f'목{i}동' for i in range(1, 6)], [f'신정{i}동' for i in [1, 2, 3, 4, 6, 7]], [f'신월{i}동' for i in range(1, 8)]]
+        for place, names in zip(item['neighborhoods'], expected):
+            self.assertIsNone(place['page_id'])
+            self.assertEqual(place['administrative_dongs'], names)
+            self.assertIn('<p>행정동: ' + html.escape(' · '.join(names), quote=True) + '</p>', text)
+        self.assertNotIn('신정5동', text)
+        self.assertIn('목동·신정동 중고등학생, 내신과 수능을 함께 준비하는 학습 계획', text)
+        self.assertIn('공통수학', text)
+        self.assertIn('영어 서술형 오답', text)
+        self.assertIn('href="yangcheon/"', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(service['areaServed']['name'], '서울특별시 양천구')
+        self.assertIn('배정 가능 여부', service['description'])
+        self.assertFalse(any(k in service for k in ['offers', 'aggregateRating', 'review', 'address']))
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))

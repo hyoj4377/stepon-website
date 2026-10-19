@@ -309,6 +309,8 @@ class Builder:
                     child = self.ids.get(place.get('page_id'))
                     available = child and child['kind'] == 'neighborhood' and child['parent_id'] == item['id'] and child['status'] == 'published'
                     inside = '<h3>' + esc(place['name']) + ' 과외</h3><p>' + esc(place['focus']) + '</p>'
+                    if place.get('administrative_dongs'):
+                        inside += '<p>행정동: ' + esc(' · '.join(place['administrative_dongs'])) + '</p>'
                     places.append('<a class="district-card" href="' + esc(self.link(path, region_path(child, self.ids))) + '">' + inside + '</a>' if available else '<article class="district-card">' + inside + '</article>')
                 cards = '<div class="district-grid neighborhood-grid">' + ''.join(places) + '</div>'
             sections.append('<section class="section city-section"><div class="wrap"><h2>' + esc(section['heading']) + '</h2>' + paragraphs + cards + '</div></section>')
