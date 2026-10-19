@@ -791,6 +791,36 @@ class SEOTests(unittest.TestCase):
             self.assertIn(html.escape(visible['answer']), text)
         self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
 
+    def test_seoul_jung_coverage_and_structured_data_match(self):
+        item = self.builder.ids['seoul-jung']
+        text = self.builder.outputs['regions/seoul/jung/index.html']
+        doc = Document(text)
+        expected = {'신당동', '신당5동', '황학동', '약수동', '다산동', '청구동', '동화동', '장충동', '광희동', '필동', '명동', '소공동', '회현동', '을지로동', '중림동'}
+        actual = [dong for area in item['neighborhoods'] for dong in area['administrative_dongs']]
+        self.assertEqual(set(actual), expected)
+        self.assertEqual(len(actual), 15)
+        self.assertEqual(len(item['neighborhoods']), 7)
+        self.assertTrue(all(area['page_id'] is None for area in item['neighborhoods']))
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/jung/'])
+        self.assertTrue(item['h1'].startswith('서울 중구'))
+        self.assertIn('서울특별시 중구', item['intro'])
+        self.assertIn('href="jung/"', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn('중학생 내신 성적 분석부터 예비고1 영어·수학 준비까지', text)
+        self.assertEqual(len(item['faq']), 7)
+        schema = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual([s['@type'] for s in schema], ['BreadcrumbList', 'Service', 'FAQPage'])
+        self.assertEqual(schema[0]['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(schema[1]['areaServed']['name'], '서울특별시 중구')
+        self.assertFalse(any(k in schema[1] for k in ['address', 'review', 'offers', 'aggregateRating']))
+        self.assertEqual(len(schema[2]['mainEntity']), 7)
+        for visible, structured in zip(item['faq'], schema[2]['mainEntity']):
+            self.assertEqual(visible['question'], structured['name'])
+            self.assertEqual(visible['answer'], structured['acceptedAnswer']['text'])
+            self.assertIn(html.escape(visible['answer']), text)
+        self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
+
     def test_confirmed_individual_lessons_render_in_relevant_guides(self):
         confirmation = self.builder.site['lesson_format']
         self.assertEqual(confirmation['students_per_lesson'], 1)
