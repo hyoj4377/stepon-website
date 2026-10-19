@@ -8,5 +8,16 @@
   "blog_url": "https://blog.naver.com/dagmetal",
   "phone": "010-4377-6964",
   "phone_uri": "tel:01043776964",
-  "instagram_url": "https://www.instagram.com/stepon_seona/"
+  "instagram_url": "https://www.instagram.com/stepon_seona/",
+  "lesson_format": {
+    "name": "1:1 수업",
+    "students_per_lesson": 1,
+    "modes": [
+      "visit",
+      "online"
+    ],
+    "confirmed_by": "site_operator",
+    "confirmed_on": "2026-10-19",
+    "note": "운영자가 현재 대화에서 방문·화상 모두 학생 한 명과 선생님이 수업하는 형태임을 확인. 배정·세부 일정·진행 조건은 개별 상담에서 확인."
+  }
 }

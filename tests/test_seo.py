@@ -744,7 +744,7 @@ class SEOTests(unittest.TestCase):
             self.assertIsNone(place['page_id'])
             self.assertEqual(place['administrative_dongs'], names)
             self.assertIn('<p>행정동: ' + html.escape(' · '.join(names), quote=True) + '</p>', text)
-        for nonexistent in ['진관1동', '진관2동', '녹번1동', '녹번2동', '1:1']:
+        for nonexistent in ['진관1동', '진관2동', '녹번1동', '녹번2동']:
             self.assertNotIn(nonexistent, text)
         self.assertIn('은평뉴타운은 생활권 명칭', text)
         self.assertIn('예비중·예비고 학생이 진학 전 반드시 점검해야 할 영어·수학 학습', text)
@@ -764,6 +764,20 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['name'], shown['question'])
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
+
+    def test_confirmed_individual_lessons_render_in_relevant_guides(self):
+        confirmation = self.builder.site['lesson_format']
+        self.assertEqual(confirmation['students_per_lesson'], 1)
+        self.assertEqual(set(confirmation['modes']), {'visit', 'online'})
+        self.assertEqual(confirmation['confirmed_by'], 'site_operator')
+        expected = {'visit': '1:1 방문과외', 'online': '1:1 화상과외', 'elementary': '초등학생 1:1 과외', 'middle': '중학생 1:1 과외', 'high': '고등학생 1:1 과외', 'english': '1:1 영어과외', 'math': '1:1 수학과외', 'korean': '1:1 국어과외'}
+        for slug, keyword in expected.items():
+            text = self.builder.outputs[f'guides/{slug}/index.html']
+            self.assertIn(keyword, text)
+            self.assertIn(keyword, self.builder.guide_ids[slug]['intro'])
+        self.assertIn('일대일 과외', self.builder.outputs['guides/social/index.html'])
+        self.assertIn('서울 1:1 과외', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn('은평구 1:1 과외', self.builder.outputs['regions/seoul/eunpyeong/index.html'])
 
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
