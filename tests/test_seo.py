@@ -765,6 +765,32 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
 
+    def test_jongno_administrative_coverage_and_matching_structured_content(self):
+        item = self.builder.ids['seoul-jongno']
+        text = self.builder.outputs['regions/seoul/jongno/index.html']
+        doc = Document(text)
+        expected = {'청운효자동', '사직동', '삼청동', '부암동', '평창동', '무악동', '교남동', '가회동', '종로1·2·3·4가동', '종로5·6가동', '이화동', '혜화동', '창신1동', '창신2동', '창신3동', '숭인1동', '숭인2동'}
+        actual = [dong for area in item['neighborhoods'] for dong in area['administrative_dongs']]
+        self.assertEqual(set(actual), expected)
+        self.assertEqual(len(actual), 17)
+        self.assertEqual(len(item['neighborhoods']), 7)
+        self.assertTrue(all(area['page_id'] is None for area in item['neighborhoods']))
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/jongno/'])
+        self.assertIn('명륜4가는 이화동', text)
+        self.assertIn('href="jongno/"', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn('학년이 바뀌기 전 꼭 확인해야 할 영어·수학 학습 점검 방법', text)
+        self.assertEqual(len(item['faq']), 6)
+        schema = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual([s['@type'] for s in schema], ['BreadcrumbList', 'Service', 'FAQPage'])
+        self.assertEqual(schema[0]['itemListElement'][-1]['item'], doc.canonical[0])
+        for visible, structured in zip(item['faq'], schema[2]['mainEntity']):
+            self.assertEqual(visible['question'], structured['name'])
+            self.assertEqual(visible['answer'], structured['acceptedAnswer']['text'])
+            self.assertIn(html.escape(visible['answer']), text)
+        self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
+
     def test_confirmed_individual_lessons_render_in_relevant_guides(self):
         confirmation = self.builder.site['lesson_format']
         self.assertEqual(confirmation['students_per_lesson'], 1)
