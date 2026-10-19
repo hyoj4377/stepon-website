@@ -821,6 +821,44 @@ class SEOTests(unittest.TestCase):
             self.assertIn(html.escape(visible['answer']), text)
         self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
 
+    def test_jungnang_and_all_25_seoul_districts_are_published(self):
+        seoul = self.builder.ids['seoul']
+        expected_names = {'강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'}
+        self.assertEqual({d['name'] for d in seoul['districts']}, expected_names)
+        self.assertEqual(len({d['page_id'] for d in seoul['districts']}), 25)
+        for district in seoul['districts']:
+            item = self.builder.ids[district['page_id']]
+            self.assertEqual(item['parent_id'], 'seoul')
+            self.assertEqual(item['status'], 'published')
+            path = region_path(item, self.builder.ids)
+            self.assertIn(path, self.builder.outputs)
+            self.assertIn('href="' + district['slug'] + '/"', self.builder.outputs['regions/seoul/index.html'])
+            self.assertIn(self.builder.canonical(path), self.builder.outputs['sitemap.xml'])
+            doc = Document(self.builder.outputs[path])
+            self.assertTrue(any(link.get('href') == '../' for link in doc.links))
+            self.assertTrue(any(link.get('href') == 'tel:01043776964' for link in doc.links))
+        item = self.builder.ids['seoul-jungnang']
+        actual = [d for area in item['neighborhoods'] for d in area['administrative_dongs']]
+        expected = {'면목본동', '면목2동', '면목3·8동', '면목4동', '면목5동', '면목7동', '상봉1동', '상봉2동', '중화1동', '중화2동', '묵1동', '묵2동', '망우본동', '망우3동', '신내1동', '신내2동'}
+        self.assertEqual(set(actual), expected)
+        self.assertEqual(len(actual), 16)
+        self.assertEqual(len(item['neighborhoods']), 7)
+        self.assertTrue(all(area['page_id'] is None for area in item['neighborhoods']))
+        text = self.builder.outputs['regions/seoul/jungnang/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/jungnang/'])
+        self.assertIn('중학생 내신 오답 분석부터 예비고1 영어·수학 준비까지', text)
+        schema = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(schema[1]['areaServed']['name'], '서울특별시 중랑구')
+        self.assertEqual(schema[0]['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(len(schema[2]['mainEntity']), 7)
+        for visible, structured in zip(item['faq'], schema[2]['mainEntity']):
+            self.assertEqual(visible['question'], structured['name'])
+            self.assertEqual(visible['answer'], structured['acceptedAnswer']['text'])
+            self.assertIn(html.escape(visible['answer']), text)
+
     def test_confirmed_individual_lessons_render_in_relevant_guides(self):
         confirmation = self.builder.site['lesson_format']
         self.assertEqual(confirmation['students_per_lesson'], 1)
