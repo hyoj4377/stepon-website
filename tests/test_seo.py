@@ -610,6 +610,34 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
 
+    def test_songpa_living_areas_wirye_and_study_planning(self):
+        item = self.builder.ids['seoul-songpa']
+        text = self.builder.outputs['regions/seoul/songpa/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/songpa/'])
+        self.assertEqual([p['name'] for p in item['neighborhoods']], ['잠실·신천 생활권', '석촌·삼전·송파 생활권', '가락·문정 생활권', '방이·오금 생활권', '풍납 생활권', '거여·마천 생활권', '장지·위례 생활권'])
+        self.assertTrue(all(p['page_id'] is None for p in item['neighborhoods']))
+        for name in ['잠실동', '신천동', '석촌동', '삼전동', '송파동', '가락동', '문정동', '방이동', '오금동', '풍납동', '거여동', '마천동', '장지동']:
+            self.assertIn(name, text)
+        self.assertIn('위례동은 법정동이 아닌 행정동 명칭', text)
+        self.assertIn('인접 지자체까지 송파구로 분류하지 않습니다', text)
+        self.assertIn('중·고등학생이 내신과 수능을 함께 준비할 때 학습 계획을 세우는 방법', text)
+        self.assertIn('중학생의 고등학교 진학 준비는 수능 문제를 많이 푸는 일과 동일하지 않습니다', text)
+        self.assertIn('href="songpa/"', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(service['areaServed']['name'], '서울특별시 송파구')
+        self.assertIn('배정 가능 여부', service['description'])
+        self.assertFalse(any(k in service for k in ['offers', 'aggregateRating', 'review', 'address']))
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))
