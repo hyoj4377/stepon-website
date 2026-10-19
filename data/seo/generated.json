@@ -13,7 +13,7 @@
     "guides/science/index.html": "eaab0c16049cba346d78fd412a0b702fc8f45c0d617c7a1b9cf443f53f95a1f9",
     "guides/performance-assessment/index.html": "0214f9d79b1809df0351c39b0056ae28776c417fd9fbc0da097757c8fbb7217d",
     "regions/index.html": "402ecc05dcf92be0c80433f323bb1316b32cd3fe47c3de4bebc7a1d83a25b2f2",
-    "regions/seoul/index.html": "f309ad9eb308e1c67b842727a233a3f90e66926779cd77995785192200675690",
+    "regions/seoul/index.html": "8de190734e5cd6400d3b4b616d90be0e5bc1ff59b99adfddd05b31be5cc1faaa",
     "regions/seoul/gangnam/index.html": "00c6801cbeedd32ae263c57020fdc0f2ac8d6221dd85258ad750de1a59f6783e",
     "regions/seoul/gangdong/index.html": "c529b035d238270ea218bd8e0d771ee7adf794a5fb22dac22f2083685b652b51",
     "regions/seoul/gangbuk/index.html": "dd475bf7433baf04337296d25054d8cccbbe2fe4baa818811d67bd111a304194",
@@ -35,6 +35,7 @@
     "regions/seoul/yangcheon/index.html": "9d42eec7a2a4d90a32ba8db0fc42e2d32e558822177c88089886506d059ab144",
     "regions/seoul/yeongdeungpo/index.html": "9a7cf48b8d47fb6cd7752e502459cdb6b4a8e1f001fdb117931564c9d57c64e2",
     "regions/seoul/yongsan/index.html": "1aa1525e4eafe9bffb1a75e59dc7eb7c1965f60b5c574d9dea2322884072bbb2",
-    "sitemap.xml": "c704374400773863e70164d14a3f7ffacb3c4474595ebce8ce2ee2eff84a9861"
+    "regions/seoul/eunpyeong/index.html": "7b6930f51546a376e8349db4b73810ea08b316896c640d027d93ec8854b5de2f",
+    "sitemap.xml": "eb48dd175ae4c692dab56f71237ac8448d4457c8a985e2577bebb519ea51d0ef"
   }
 }

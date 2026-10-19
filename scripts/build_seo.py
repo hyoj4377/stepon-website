@@ -300,6 +300,8 @@ class Builder:
         sections = []
         for section in item['sections']:
             paragraphs = ''.join('<p class="lead">' + esc(p) + '</p>' for p in section['paragraphs'])
+            if section.get('checklist'):
+                paragraphs += '<ul class="checklist">' + ''.join('<li>' + esc(question) + '</li>' for question in section['checklist']) + '</ul>'
             cards = ''
             if section.get('cards'):
                 cards = '<div class="city-cards">' + ''.join('<a class="card" href="' + esc(self.link(path, 'guides/' + card['slug'] + '/index.html')) + '"><h3>' + esc(card['heading']) + '</h3><p>' + esc(card['description']) + '</p><span class="card-arrow">학습 안내 보기 →</span></a>' for card in section['cards']) + '</div>'

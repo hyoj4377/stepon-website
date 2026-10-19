@@ -730,6 +730,41 @@ class SEOTests(unittest.TestCase):
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
             self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
 
+    def test_eunpyeong_administrative_dongs_transition_checklist_and_publication(self):
+        item = self.builder.ids['seoul-eunpyeong']
+        text = self.builder.outputs['regions/seoul/eunpyeong/index.html']
+        doc = Document(text)
+        self.assertEqual(''.join(doc.title), item['title'])
+        self.assertEqual(doc.description, [item['description']])
+        self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/eunpyeong/'])
+        self.assertEqual([p['name'] for p in item['neighborhoods']], ['진관·은평뉴타운 생활권', '불광 생활권', '갈현·대조 생활권', '녹번·응암 생활권', '역촌·구산 생활권', '신사·증산·수색 생활권'])
+        expected = [['진관동'], ['불광1동', '불광2동'], ['갈현1동', '갈현2동', '대조동'], ['녹번동', '응암1동', '응암2동', '응암3동'], ['역촌동', '구산동'], ['신사1동', '신사2동', '증산동', '수색동']]
+        self.assertEqual(sum(len(names) for names in expected), 16)
+        for place, names in zip(item['neighborhoods'], expected):
+            self.assertIsNone(place['page_id'])
+            self.assertEqual(place['administrative_dongs'], names)
+            self.assertIn('<p>행정동: ' + html.escape(' · '.join(names), quote=True) + '</p>', text)
+        for nonexistent in ['진관1동', '진관2동', '녹번1동', '녹번2동', '1:1']:
+            self.assertNotIn(nonexistent, text)
+        self.assertIn('은평뉴타운은 생활권 명칭', text)
+        self.assertIn('예비중·예비고 학생이 진학 전 반드시 점검해야 할 영어·수학 학습', text)
+        checklist = next(section['checklist'] for section in item['sections'] if section.get('checklist'))
+        self.assertEqual(len(checklist), 6)
+        for question in checklist:
+            self.assertIn('<li>' + html.escape(question, quote=True) + '</li>', text)
+        self.assertIn('href="eunpyeong/"', self.builder.outputs['regions/seoul/index.html'])
+        self.assertIn(doc.canonical[0], self.builder.outputs['sitemap.xml'])
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['item'], doc.canonical[0])
+        self.assertEqual(service['areaServed']['name'], '서울특별시 은평구')
+        self.assertIn('배정 가능 여부', service['description'])
+        self.assertFalse(any(k in service for k in ['offers', 'aggregateRating', 'review', 'address']))
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertIn('<summary>' + html.escape(shown['question'], quote=True) + '</summary>', text)
+
     def test_grade_and_subject_guide_content_is_not_location_substitution(self):
         bodies = [''.join(''.join(section['paragraphs']) for section in page['sections']) for page in self.builder.guides]
         self.assertEqual(len(bodies), len(set(bodies)))
