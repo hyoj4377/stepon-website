@@ -909,6 +909,43 @@ class SEOTests(unittest.TestCase):
         self.assertIn('나머지 자치구는 아직 별도 상세 링크가 없습니다.', partial)
         self.assertNotIn('href="gangnam/"', partial)
 
+    def test_busan_hub_and_16_districts_use_their_own_parent_and_content(self):
+        city = self.builder.ids['busan']
+        expected = {'중구', '서구', '동구', '영도구', '부산진구', '동래구', '남구', '북구', '해운대구', '사하구', '금정구', '강서구', '연제구', '수영구', '사상구', '기장군'}
+        self.assertEqual(city['status'], 'published')
+        self.assertEqual({d['name'] for d in city['districts']}, expected)
+        self.assertEqual(len(city['districts']), 16)
+        hub = self.builder.outputs['regions/busan/index.html']
+        self.assertIn('부산 16개 구·군 상세 안내가 모두 연결', hub)
+        self.assertIn('href="busan/"', self.builder.outputs['regions/index.html'])
+        topics = set()
+        for card in city['districts']:
+            item = self.builder.ids[card['page_id']]
+            path = region_path(item, self.builder.ids)
+            text = self.builder.outputs[path]
+            self.assertEqual(item['parent_id'], 'busan')
+            self.assertEqual(item['status'], 'published')
+            self.assertIn('href="' + item['slug'] + '/"', hub)
+            self.assertIn('부산 과외 대표 안내', text)
+            self.assertNotIn('서울 대표 페이지', text)
+            self.assertIn(self.builder.canonical(path), self.builder.outputs['sitemap.xml'])
+            info = next(s for s in item['sections'] if s.get('checklist'))
+            topics.add(info['heading'])
+            self.assertGreaterEqual(len(info['paragraphs']), 3)
+            self.assertTrue(all(n['page_id'] is None for n in item['neighborhoods']))
+            breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+            self.assertEqual(breadcrumb['itemListElement'][2]['name'], '부산 과외')
+            self.assertEqual(breadcrumb['itemListElement'][2]['item'], self.builder.base + 'regions/busan/')
+            self.assertEqual(service['areaServed']['containedInPlace']['name'], '부산광역시')
+            self.assertEqual(service['areaServed']['name'], '부산광역시 ' + card['name'])
+            self.assertEqual(len(faq['mainEntity']), 5)
+            for shown, structured in zip(item['faq'], faq['mainEntity']):
+                self.assertEqual(shown['answer'], structured['acceptedAnswer']['text'])
+                self.assertIn(html.escape(shown['question']), text)
+        self.assertEqual(len(topics), 16)
+        self.assertIn('일광읍', self.builder.outputs['regions/busan/gijang/index.html'])
+        self.assertIn('기장군은 자치구가 아닌', self.builder.outputs['regions/busan/gijang/index.html'])
+
     def test_confirmed_individual_lessons_render_in_relevant_guides(self):
         confirmation = self.builder.site['lesson_format']
         self.assertEqual(confirmation['students_per_lesson'], 1)
