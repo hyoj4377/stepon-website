@@ -122,5 +122,5 @@
 
 - 감사 기준 커밋: `ddb4737847aa4d1c9b9bd92377acaded1b8619e0`. origin/main과 일치 확인.
 - 예상하지 못한 원격 변경이 발견되면 덮어쓰지 않고 보고하는 원칙 적용.
-- 감사 보고서 커밋/푸시: 검증 종료 후 기록.
+- 감사 보고서 최초 커밋: `1f6fbe62b245664adb1917d1edeafd0ecfe3e5dd`. `git push origin HEAD:main` 성공 후 `git ls-remote origin refs/heads/main`에서 같은 SHA를 확인함. 이 푸시 결과 기록은 후속 문서 커밋으로 저장.
 - Git 푸시 완료와 GitHub Pages 배포 완료, 네이버/구글 색인 완료는 서로 다른 상태이며 공개 배포·색인은 미확인.
