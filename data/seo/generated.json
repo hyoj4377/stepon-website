@@ -12,9 +12,10 @@
     "guides/social/index.html": "6427188659b1cdb1bc96fff0b8525b1e71e56b7feecabeecbaadae9dbbd7a591",
     "guides/science/index.html": "55adeeb4a1c1b3e96c18907f622d6ddb0c0ae961e241cbb4e1253535bb8b56b7",
     "guides/performance-assessment/index.html": "cc409e84b0d82ded8b2354156e6d40691a9859812f298b34d76ff22921847d85",
-    "regions/index.html": "e10ce83a88c03f88e0e168dd93c7048a9728365ec5b507fbeeec88ca4fcc385d",
+    "regions/index.html": "bb1efe0b67db885bc1ae9ed5ab38860da889012f49ab85978710770f7787f4cc",
     "regions/seoul/index.html": "fa48c82f09ee1cc3ae447f1e8207044227e1b8c2191f00d267860b84b0c7da5a",
     "regions/busan/index.html": "7f377ece862f1b3aaab742ffa0c451ad5b17ac498d93909d7c56262b108f9394",
+    "regions/daegu/index.html": "59121e448553029df9ec2dac15be92714736c96a2b80041d0d294e61aebd60d4",
     "regions/seoul/gangnam/index.html": "00c6801cbeedd32ae263c57020fdc0f2ac8d6221dd85258ad750de1a59f6783e",
     "regions/seoul/gangdong/index.html": "c529b035d238270ea218bd8e0d771ee7adf794a5fb22dac22f2083685b652b51",
     "regions/seoul/gangbuk/index.html": "dd475bf7433baf04337296d25054d8cccbbe2fe4baa818811d67bd111a304194",
@@ -56,6 +57,15 @@
     "regions/busan/suyeong/index.html": "bbb6cb337edbd5237705c4109b05cff942f1b0c3682b8ff434c269dc3a646c16",
     "regions/busan/sasang/index.html": "763061a17798365836f0ee14e7b81e1b2edb27786773e94cc3163c25ad146162",
     "regions/busan/gijang/index.html": "73be2fbc27b74c877a818c0765f46fc8e2de56f684ca7c960ea79e33b00eb46c",
-    "sitemap.xml": "b89eb4fe3ee695d9b00b5e637c86a450a02a44d9e10efef949d1955e100b5c84"
+    "regions/daegu/jung/index.html": "30dfb3a53595b5e2e8e1a2bc6bc1a66db3af7af9f9afb122548b4606b0bc9ec6",
+    "regions/daegu/dong/index.html": "1268001a0216761dbafb4d1d479423353aef3ae14f44216de2d3849266cb0850",
+    "regions/daegu/seo/index.html": "5ea8cf5804baedcbf57e1d151c916b47ccc76ab192b8aa4a232aa794c4ff56c1",
+    "regions/daegu/nam/index.html": "77f252a57d05cc00741009183bd3438cb3d1b40a86f594c1c7c2f58369def840",
+    "regions/daegu/buk/index.html": "4c55f376407faa0fa6e92b62bd4fdfaf76c8354c49b5119b0746defcaa32bfff",
+    "regions/daegu/suseong/index.html": "04c2f42d013cf3fb00572355a5fa6c5200d7296102a10f708a6b877aa1801343",
+    "regions/daegu/dalseo/index.html": "3df2ceb0dc70dcb8069fc150ed4e89451635dfe4a523103935a8666e974fef12",
+    "regions/daegu/dalseong/index.html": "dcfd1a2a09b977f20e166265ef4a9706c90ef4e96cea149ac7a972c01c083039",
+    "regions/daegu/gunwi/index.html": "306100b4b4b66e9031ad3837610f2af579e2968368de72765f9b312111a7941e",
+    "sitemap.xml": "fc195afa935696118682501c3e4bbaa7526f7ca986dff9eb51e487d8eab04697"
   }
 }
