@@ -216,6 +216,8 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(''.join(doc.title), item['title'])
         self.assertEqual(doc.description, [item['description']])
         self.assertEqual(doc.canonical, [self.builder.base + 'regions/seoul/gangnam/'])
+        self.assertTrue(item['title'].startswith('강남구 1:1과외'))
+        self.assertTrue(item['h1'].startswith('강남구 1:1과외'))
         self.assertEqual(len(item['neighborhoods']), 12)
         self.assertEqual(text.count('class="district-card"'), 12)
         self.assertFalse(any('/daechi/' in a['href'] for a in doc.links))
@@ -228,7 +230,7 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(service['areaServed']['name'], '서울특별시 강남구')
         self.assertEqual(service['provider']['telephone'], '010-4377-6964')
         self.assertFalse(any(k in service for k in ('offers', 'aggregateRating', 'review', 'address')))
-        self.assertEqual(len(faq['mainEntity']), 6)
+        self.assertEqual(len(faq['mainEntity']), 5)
         for shown, entry in zip(item['faq'], faq['mainEntity']):
             self.assertEqual(entry['name'], shown['question'])
             self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
