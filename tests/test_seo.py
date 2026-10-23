@@ -985,7 +985,7 @@ class SEOTests(unittest.TestCase):
     def test_incheon_reorganized_hub_and_eleven_districts_match_parent_and_faq(self):
         city = self.builder.ids['incheon']
         self.assertEqual(city['status'], 'published')
-        self.assertEqual({d['name'] for d in city['districts']}, {'제물포구', '영종구', '미추홀구', '연수구', '남동구', '부평구', '계양구', '서구', '검단구', '강화군', '옹진군'})
+        self.assertEqual({d['name'] for d in city['districts']}, {'제물포구', '영종구', '미추홀구', '연수구', '남동구', '부평구', '계양구', '서해구', '검단구', '강화군', '옹진군'})
         self.assertEqual(len(city['districts']), 11)
         hub = self.builder.outputs['regions/incheon/index.html']
         self.assertIn('인천 11개 구·군 상세 안내가 모두 연결', hub)
@@ -1015,6 +1015,42 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(topics), 11)
         self.assertNotIn('incheon-jung', self.builder.ids)
         self.assertNotIn('incheon-dong', self.builder.ids)
+
+    def test_incheon_seohae_name_preserves_seo_url_and_district_scope(self):
+        item = self.builder.ids['incheon-seo']
+        self.assertEqual(item['name'], '서해구')
+        self.assertEqual(item['official_name'], '인천광역시 서해구')
+        self.assertEqual(item['slug'], 'seo')
+        path = region_path(item, self.builder.ids)
+        self.assertEqual(path, 'regions/incheon/seo/index.html')
+        text = self.builder.outputs[path]
+        doc = Document(text)
+        canonical = self.builder.base + 'regions/incheon/seo/'
+        self.assertEqual(doc.canonical, [canonical])
+        self.assertEqual(doc.og['og:url'], [canonical])
+        self.assertIn('인천 서해구', ''.join(doc.title))
+        self.assertIn('인천 서해구', item['h1'])
+        self.assertIn('인천 서해구', doc.description[0])
+        self.assertIn('인천 서해구 과외', text)
+        self.assertIn('2026년 7월 1일', text)
+        breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['name'], '서해구 과외')
+        self.assertEqual(service['areaServed']['name'], '인천광역시 서해구')
+        self.assertEqual(service['url'], canonical)
+        self.assertEqual(len(faq['mainEntity']), len(item['faq']))
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+        own = {n['name'] for n in item['neighborhoods']}
+        other = {n['name'] for n in self.builder.ids['incheon-geomdan']['neighborhoods']}
+        self.assertFalse(own & other)
+        self.assertEqual(len(own), 10)
+        hub = self.builder.outputs['regions/incheon/index.html']
+        self.assertIn('href="seo/"', hub)
+        self.assertIn('서해구 과외', hub)
+        self.assertIn(canonical, self.builder.outputs['sitemap.xml'])
+        self.assertEqual(self.builder.ids['busan-seo']['name'], '서구')
+        self.assertEqual(self.builder.ids['daegu-seo']['name'], '서구')
 
     def test_confirmed_individual_lessons_render_in_relevant_guides(self):
         confirmation = self.builder.site['lesson_format']
