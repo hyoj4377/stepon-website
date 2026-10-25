@@ -12,11 +12,12 @@
     "guides/social/index.html": "6427188659b1cdb1bc96fff0b8525b1e71e56b7feecabeecbaadae9dbbd7a591",
     "guides/science/index.html": "55adeeb4a1c1b3e96c18907f622d6ddb0c0ae961e241cbb4e1253535bb8b56b7",
     "guides/performance-assessment/index.html": "cc409e84b0d82ded8b2354156e6d40691a9859812f298b34d76ff22921847d85",
-    "regions/index.html": "36258d6c429171ba27c6598472d705d99b3b0a02345382e698aa365063f9f688",
+    "regions/index.html": "1520b67a1fa296e874655d493319fd5e8c8d8d3b34e24e33fd170dbf4ff2eab3",
     "regions/seoul/index.html": "fa48c82f09ee1cc3ae447f1e8207044227e1b8c2191f00d267860b84b0c7da5a",
     "regions/busan/index.html": "7f377ece862f1b3aaab742ffa0c451ad5b17ac498d93909d7c56262b108f9394",
     "regions/daegu/index.html": "59121e448553029df9ec2dac15be92714736c96a2b80041d0d294e61aebd60d4",
     "regions/incheon/index.html": "d4cb023a55062e3686ac74b70a5b0155cdd6ccdd37ee1c615dfaeca8a8a9fc7c",
+    "regions/gwangju/index.html": "337d042c6591307b6bc60e507e33b1006b9d03e874d419908fbc486cf4bc3474",
     "regions/seoul/gangnam/index.html": "7cff2afd39206c9348681df5232b82799282bcf3d02ee731118f1d3093e52612",
     "regions/seoul/gangdong/index.html": "c529b035d238270ea218bd8e0d771ee7adf794a5fb22dac22f2083685b652b51",
     "regions/seoul/gangbuk/index.html": "dd475bf7433baf04337296d25054d8cccbbe2fe4baa818811d67bd111a304194",
@@ -78,6 +79,11 @@
     "regions/incheon/geomdan/index.html": "8c057d81b2d6108e957481109e7fc5e74ed2ac541a822059ed72a266b97bf689",
     "regions/incheon/ganghwa/index.html": "6e07fcc56c2cf065d576d4c6a53f263a1618a1d42d078cc506c7f150b286f490",
     "regions/incheon/ongjin/index.html": "084118b88626cd1844cfafe12c891166b336e5a49c9fe2e31661b2ab6e24a204",
-    "sitemap.xml": "1df1d5fb1914a00cc6c14226f8b5de2c99a007fcd4038892544c008c0eb17863"
+    "regions/gwangju/dong/index.html": "48057d4a4626f2e1b4c1dfacee064b3c92ea2fc45cebeb51d099e7136e84078c",
+    "regions/gwangju/seo/index.html": "1edc5e78966b89a39502ac8847f66b0497db9257821d98e667ea49398c726171",
+    "regions/gwangju/nam/index.html": "756b89298f1a9a112143f2c637c663994742ce0595286e6c75b87905a82dc362",
+    "regions/gwangju/buk/index.html": "d1c1f5c9f962503481fadd764f7bba76123880329abbd2d50066e21f9e18c2a9",
+    "regions/gwangju/gwangsan/index.html": "41fea85e9c26cd2b1708a957f6f972cdcd97cdbc8c99cacb50992437d4adece3",
+    "sitemap.xml": "e562db61d42fd29814b549eea0aed911cce11384250445504b27f4722b8a8cec"
   }
 }

@@ -982,6 +982,38 @@ class SEOTests(unittest.TestCase):
         self.assertIn('삼국유사면', self.builder.outputs['regions/daegu/gunwi/index.html'])
         self.assertIn('대구광역시에 속하는 군', self.builder.outputs['regions/daegu/gunwi/index.html'])
 
+    def test_gwangju_hub_and_five_districts_use_metropolitan_parent_and_unique_topics(self):
+        city = self.builder.ids['gwangju']
+        self.assertEqual(city['status'], 'published')
+        self.assertEqual({d['name'] for d in city['districts']}, {'동구', '서구', '남구', '북구', '광산구'})
+        self.assertEqual(len(city['districts']), 5)
+        hub = self.builder.outputs['regions/gwangju/index.html']
+        self.assertIn('광주 5개 자치구 상세 안내가 모두 연결', hub)
+        self.assertIn('href="gwangju/"', self.builder.outputs['regions/index.html'])
+        topics = set()
+        for card in city['districts']:
+            item = self.builder.ids[card['page_id']]
+            text = self.builder.outputs[region_path(item, self.builder.ids)]
+            self.assertIn('href="' + card['slug'] + '/"', hub)
+            self.assertIn('광주 과외 대표 안내', text)
+            self.assertNotIn('서울 대표 페이지', text)
+            self.assertNotIn('부산 대표 페이지', text)
+            info = next(s for s in item['sections'] if s.get('checklist'))
+            topics.add(info['heading'])
+            self.assertGreaterEqual(len(info['paragraphs']), 3)
+            breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+            self.assertEqual(breadcrumb['itemListElement'][2]['name'], '광주 과외')
+            self.assertEqual(breadcrumb['itemListElement'][2]['item'], self.builder.base + 'regions/gwangju/')
+            self.assertEqual(service['areaServed']['containedInPlace']['name'], '광주광역시')
+            self.assertEqual(service['areaServed']['name'], '광주광역시 ' + card['name'])
+            self.assertEqual(len(faq['mainEntity']), 5)
+            for shown, structured in zip(item['faq'], faq['mainEntity']):
+                self.assertEqual(shown['question'], structured['name'])
+                self.assertEqual(shown['answer'], structured['acceptedAnswer']['text'])
+            self.assertIn(service['url'], self.builder.outputs['sitemap.xml'])
+        self.assertEqual(len(topics), 5)
+        self.assertIn('경기도 광주시와 구분', hub)
+
     def test_incheon_reorganized_hub_and_eleven_districts_match_parent_and_faq(self):
         city = self.builder.ids['incheon']
         self.assertEqual(city['status'], 'published')
