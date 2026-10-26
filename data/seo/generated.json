@@ -12,12 +12,13 @@
     "guides/social/index.html": "6427188659b1cdb1bc96fff0b8525b1e71e56b7feecabeecbaadae9dbbd7a591",
     "guides/science/index.html": "55adeeb4a1c1b3e96c18907f622d6ddb0c0ae961e241cbb4e1253535bb8b56b7",
     "guides/performance-assessment/index.html": "cc409e84b0d82ded8b2354156e6d40691a9859812f298b34d76ff22921847d85",
-    "regions/index.html": "1520b67a1fa296e874655d493319fd5e8c8d8d3b34e24e33fd170dbf4ff2eab3",
+    "regions/index.html": "344bc253a42cd7709a2f9e26beadcc941c75f0453b04699c85bbc387286683bb",
     "regions/seoul/index.html": "fa48c82f09ee1cc3ae447f1e8207044227e1b8c2191f00d267860b84b0c7da5a",
     "regions/busan/index.html": "7f377ece862f1b3aaab742ffa0c451ad5b17ac498d93909d7c56262b108f9394",
     "regions/daegu/index.html": "59121e448553029df9ec2dac15be92714736c96a2b80041d0d294e61aebd60d4",
     "regions/incheon/index.html": "d4cb023a55062e3686ac74b70a5b0155cdd6ccdd37ee1c615dfaeca8a8a9fc7c",
     "regions/gwangju/index.html": "337d042c6591307b6bc60e507e33b1006b9d03e874d419908fbc486cf4bc3474",
+    "regions/daejeon/index.html": "1db4a2c4cc64afe394a035ee8c3d82e5f6736223f2e77fe7b3d56440aa323d03",
     "regions/seoul/gangnam/index.html": "7cff2afd39206c9348681df5232b82799282bcf3d02ee731118f1d3093e52612",
     "regions/seoul/gangdong/index.html": "c529b035d238270ea218bd8e0d771ee7adf794a5fb22dac22f2083685b652b51",
     "regions/seoul/gangbuk/index.html": "dd475bf7433baf04337296d25054d8cccbbe2fe4baa818811d67bd111a304194",
@@ -84,6 +85,11 @@
     "regions/gwangju/nam/index.html": "756b89298f1a9a112143f2c637c663994742ce0595286e6c75b87905a82dc362",
     "regions/gwangju/buk/index.html": "d1c1f5c9f962503481fadd764f7bba76123880329abbd2d50066e21f9e18c2a9",
     "regions/gwangju/gwangsan/index.html": "41fea85e9c26cd2b1708a957f6f972cdcd97cdbc8c99cacb50992437d4adece3",
-    "sitemap.xml": "e562db61d42fd29814b549eea0aed911cce11384250445504b27f4722b8a8cec"
+    "regions/daejeon/dong/index.html": "9435e31b73cbfd866771c5056fbfcf3e45891a1c0f5aabdd65c7762ecdc23a56",
+    "regions/daejeon/jung/index.html": "f8662e4566a8b46a13f740d8a74ca4d5a965bc454fbc1b96759117c1cbf833d0",
+    "regions/daejeon/seo/index.html": "fe9420fbca536d024764844a3d8de8151d8ebe475237d99cd395a88753d6ca97",
+    "regions/daejeon/yuseong/index.html": "1676dfff620d0d44c3df6c6c4babd950f6572fe3959d60a266701c0da3f23089",
+    "regions/daejeon/daedeok/index.html": "f9453287ebea1415f54229e69440a05a40f599a4f1af3e47d1e736d3229eaced",
+    "sitemap.xml": "e894f7c0120ca3c2e13581a8b9791f2c78026726e2252a83763aabe3e94f9531"
   }
 }
