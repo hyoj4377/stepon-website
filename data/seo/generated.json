@@ -12,7 +12,7 @@
     "guides/social/index.html": "6427188659b1cdb1bc96fff0b8525b1e71e56b7feecabeecbaadae9dbbd7a591",
     "guides/science/index.html": "55adeeb4a1c1b3e96c18907f622d6ddb0c0ae961e241cbb4e1253535bb8b56b7",
     "guides/performance-assessment/index.html": "cc409e84b0d82ded8b2354156e6d40691a9859812f298b34d76ff22921847d85",
-    "regions/index.html": "060534b8a31c8e242fbc70e5a6d118e7749e5aa23ec1dcb4b563507e7e1c8df0",
+    "regions/index.html": "dcfea251db20422e44f89c36c005b9a253cd9c344300add7f52b84abeae751a5",
     "regions/seoul/index.html": "fa48c82f09ee1cc3ae447f1e8207044227e1b8c2191f00d267860b84b0c7da5a",
     "regions/busan/index.html": "7f377ece862f1b3aaab742ffa0c451ad5b17ac498d93909d7c56262b108f9394",
     "regions/daegu/index.html": "59121e448553029df9ec2dac15be92714736c96a2b80041d0d294e61aebd60d4",
@@ -20,6 +20,7 @@
     "regions/gwangju/index.html": "337d042c6591307b6bc60e507e33b1006b9d03e874d419908fbc486cf4bc3474",
     "regions/daejeon/index.html": "1db4a2c4cc64afe394a035ee8c3d82e5f6736223f2e77fe7b3d56440aa323d03",
     "regions/ulsan/index.html": "fe0eff77061aeb0cc027cbdb0a9da9284a9c1a17fc6db99d97d35f01d624bc7e",
+    "regions/sejong/index.html": "83c19588f20a28c14fd82942276305300d4af5d74abe2a7530cc18db3c73ce3f",
     "regions/seoul/gangnam/index.html": "7cff2afd39206c9348681df5232b82799282bcf3d02ee731118f1d3093e52612",
     "regions/seoul/gangdong/index.html": "c529b035d238270ea218bd8e0d771ee7adf794a5fb22dac22f2083685b652b51",
     "regions/seoul/gangbuk/index.html": "dd475bf7433baf04337296d25054d8cccbbe2fe4baa818811d67bd111a304194",
@@ -96,6 +97,6 @@
     "regions/ulsan/dong/index.html": "b81ab21fb5dc1f0d4ef75cc6f3933edc3f71690ec0f50920594168b290b8d56b",
     "regions/ulsan/buk/index.html": "0abba799551fe654a4bba573f1cfbb27f93445fe176eefcb5b1cc3dd6d9d54ef",
     "regions/ulsan/ulju/index.html": "e73bf8e9f797404da10aa86f93cf9cac38b15efe5776642274798264662dbd9c",
-    "sitemap.xml": "fd16507b1b5b851f8c90914065060060f740615889dc0cf2fa7cf7dc0a1b19ee"
+    "sitemap.xml": "fa22ee7fb3bb8869e66e658db1f800fd23e4dd4b7b048602a7dfe36fc3888f00"
   }
 }

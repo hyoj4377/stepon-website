@@ -265,9 +265,13 @@ class Builder:
         sections = []
         for section in item['sections']:
             paragraphs = ''.join('<p class="lead">' + esc(p) + '</p>' for p in section['paragraphs'])
+            if section.get('checklist'):
+                paragraphs += '<ul class="checklist">' + ''.join('<li>' + esc(question) + '</li>' for question in section['checklist']) + '</ul>'
             cards = ''
             if section.get('cards'):
                 cards = '<div class="city-cards">' + ''.join('<a class="card" href="' + esc(self.link(path, 'guides/' + card['slug'] + '/index.html')) + '"><h3>' + esc(card['heading']) + '</h3><p>' + esc(card['description']) + '</p><span class="card-arrow">학습 안내 보기 →</span></a>' for card in section['cards']) + '</div>'
+            if section.get('area_cards'):
+                cards = '<div class="district-grid">' + ''.join('<article class="district-card"><h3>' + esc(card['heading']) + '</h3><p>' + esc(card['description']) + '</p></article>' for card in section['area_cards']) + '</div>'
             if section.get('district_grid') or section['heading'] == '서울 25개 자치구 과외 안내':
                 districts = []
                 published_count = 0
@@ -281,7 +285,7 @@ class Builder:
                 cards = '<div class="district-grid">' + ''.join(districts) + '</div><p class="note">' + availability + '</p>'
             sections.append('<section class="section city-section"><div class="wrap"><h2>' + esc(section['heading']) + '</h2>' + paragraphs + cards + '</div></section>')
         faq = ''.join('<details><summary>' + esc(q['question']) + '</summary><p>' + esc(q['answer']) + '</p></details>' for q in item['faq'])
-        content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / ' + esc(item['slug'].upper()) + ' LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>' + esc(item['name']) + ' 과외, 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>전국 지역 안내와 함께 살펴보세요.</h2><p class="lead">' + esc(item['name']) + ' 외 다른 지역의 안내와 수업 방식·학년·과목별 정보를 전국 안내에서 확인할 수 있습니다.</p><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a><p class="note">' + esc(item['name']) + ' 전 지역 서비스 범위와 ' + esc(item.get('district_label', '자치구')) + ' 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 실제 수업 일정과 조건은 상담에서 조율합니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / ' + esc(item['slug'].upper()) + '</p><h2>우리 동네에서 시작하는 ' + esc(item['name']) + ' 과외 상담</h2><p>학년·과목·' + esc(item.get('district_label', '자치구')) + '와 동네, 희망 수업 방식과 시간을 알려주세요.</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">시강 일정과 진행 조건은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.</p></div></section>'
+        content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / ' + esc(item['slug'].upper()) + ' LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>' + esc(item['name']) + ' 과외, 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>전국 지역 안내와 함께 살펴보세요.</h2><p class="lead">' + esc(item['name']) + ' 외 다른 지역의 안내와 수업 방식·학년·과목별 정보를 전국 안내에서 확인할 수 있습니다.</p><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a><p class="note">' + esc(item['name']) + ' 전 지역 서비스 범위와 ' + esc(item.get('district_label', '자치구')) + ' 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 실제 수업 일정과 조건은 상담에서 조율합니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / ' + esc(item['slug'].upper()) + '</p><h2>우리 동네에서 시작하는 ' + esc(item['name']) + ' 과외 상담</h2><p>학년·과목·' + esc(item.get('consultation_area_prompt', item.get('district_label', '자치구') + '와 동네')) + ', 희망 수업 방식과 시간을 알려주세요.</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">시강 일정과 진행 조건은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.</p></div></section>'
         css = REGION_CSS
         canonical = self.canonical(path)
         schema = [

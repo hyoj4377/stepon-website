@@ -982,6 +982,40 @@ class SEOTests(unittest.TestCase):
         self.assertIn('삼국유사면', self.builder.outputs['regions/daegu/gunwi/index.html'])
         self.assertIn('대구광역시에 속하는 군', self.builder.outputs['regions/daegu/gunwi/index.html'])
 
+    def test_sejong_single_tier_page_has_area_cards_without_fake_districts(self):
+        item = self.builder.ids['sejong']
+        self.assertEqual(item['kind'], 'province')
+        self.assertEqual(item['status'], 'published')
+        self.assertEqual(item['official_name'], '세종특별자치시')
+        self.assertFalse(any(r.get('parent_id') == 'sejong' for r in self.builder.regions))
+        self.assertNotIn('districts', item)
+        text = self.builder.outputs['regions/sejong/index.html']
+        doc = Document(text)
+        canonical = self.builder.base + 'regions/sejong/'
+        self.assertEqual(doc.canonical, [canonical])
+        self.assertEqual(doc.og['og:url'], [canonical])
+        self.assertEqual(doc.h1, 1)
+        self.assertIn('세종 과외', ''.join(doc.title))
+        self.assertIn('href="sejong/"', self.builder.outputs['regions/index.html'])
+        self.assertIn('자치구가 없는', text)
+        self.assertNotIn('0개 자치구', text)
+        self.assertNotIn('자치구별 상세 페이지는', text)
+        self.assertEqual(text.count('<article class="district-card">'), 6)
+        for section in item['sections']:
+            for card in section.get('area_cards', []):
+                self.assertIn(html.escape(card['heading']), text)
+                self.assertIn(html.escape(card['description']), text)
+            for question in section.get('checklist', []):
+                self.assertIn('<li>' + html.escape(question) + '</li>', text)
+        self.assertIn('거주 읍·면·동, 희망 수업 방식', text)
+        breadcrumb, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+        self.assertEqual(breadcrumb['itemListElement'][-1]['item'], canonical)
+        self.assertEqual(len(faq['mainEntity']), 6)
+        for shown, entry in zip(item['faq'], faq['mainEntity']):
+            self.assertEqual(entry['name'], shown['question'])
+            self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+        self.assertIn(canonical, self.builder.outputs['sitemap.xml'])
+
     def test_ulsan_hub_and_five_districts_use_metropolitan_parent_and_unique_topics(self):
         city = self.builder.ids['ulsan']
         self.assertEqual(city['status'], 'published')
