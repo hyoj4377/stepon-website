@@ -982,6 +982,47 @@ class SEOTests(unittest.TestCase):
         self.assertIn('삼국유사면', self.builder.outputs['regions/daegu/gunwi/index.html'])
         self.assertIn('대구광역시에 속하는 군', self.builder.outputs['regions/daegu/gunwi/index.html'])
 
+    def test_gyeonggi_hub_and_31_cities_counties_have_correct_hierarchy_and_unique_content(self):
+        city = self.builder.ids['gyeonggi']
+        expected = {'수원시', '성남시', '의정부시', '안양시', '부천시', '광명시', '평택시', '동두천시', '안산시', '고양시', '과천시', '구리시', '남양주시', '오산시', '시흥시', '군포시', '의왕시', '하남시', '용인시', '파주시', '이천시', '안성시', '김포시', '화성시', '광주시', '양주시', '포천시', '여주시', '연천군', '가평군', '양평군'}
+        self.assertEqual(city['status'], 'published')
+        self.assertEqual(city['official_name'], '경기도')
+        self.assertEqual(city['district_label'], '시·군')
+        self.assertEqual(len(city['districts']), 31)
+        self.assertEqual({r['name'] for r in city['districts']}, expected)
+        self.assertEqual(sum(r['name'].endswith('군') for r in city['districts']), 3)
+        hub = self.builder.outputs['regions/gyeonggi/index.html']
+        self.assertIn('경기도 31개 시·군 상세 안내가 모두 연결', hub)
+        self.assertIn('href="gyeonggi/"', self.builder.outputs['regions/index.html'])
+        topics = set()
+        for card in city['districts']:
+            item = self.builder.ids[card['page_id']]
+            path = region_path(item, self.builder.ids)
+            text = self.builder.outputs[path]
+            self.assertEqual(item['parent_id'], 'gyeonggi')
+            self.assertEqual(item['official_name'], '경기도 ' + item['name'])
+            self.assertIn('href="' + card['slug'] + '/"', hub)
+            self.assertIn('경기도 과외 대표 안내', text)
+            self.assertIn('tel:01043776964', text)
+            self.assertFalse(any(r.get('parent_id') == item['id'] for r in self.builder.regions))
+            info = next(r for r in item['sections'] if r.get('checklist'))
+            self.assertGreaterEqual(len(info['paragraphs']), 3)
+            topics.add(info['heading'])
+            doc = Document(text)
+            self.assertEqual(doc.canonical, [self.builder.base + path.removesuffix('index.html')])
+            breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+            self.assertEqual(breadcrumb['itemListElement'][2]['name'], '경기도 과외')
+            self.assertEqual(service['areaServed']['containedInPlace']['name'], '경기도')
+            self.assertEqual(service['areaServed']['name'], item['official_name'])
+            self.assertEqual(len(faq['mainEntity']), 5)
+            for shown, entry in zip(item['faq'], faq['mainEntity']):
+                self.assertEqual(entry['name'], shown['question'])
+                self.assertEqual(entry['acceptedAnswer']['text'], shown['answer'])
+            self.assertIn(service['url'], self.builder.outputs['sitemap.xml'])
+        self.assertEqual(len(topics), 31)
+        self.assertIn('광주광역시와 다른 지역', self.builder.outputs['regions/gyeonggi/gwangju/index.html'])
+        self.assertEqual(self.builder.ids['gwangju']['official_name'], '광주광역시')
+
     def test_sejong_single_tier_page_has_area_cards_without_fake_districts(self):
         item = self.builder.ids['sejong']
         self.assertEqual(item['kind'], 'province')
