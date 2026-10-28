@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data/seo'
 MANIFEST = DATA / 'generated.json'
-KINDS = {'province': None, 'district': 'province', 'neighborhood': 'district', 'school': 'neighborhood', 'learning': 'school'}
+KINDS = {'province': None, 'district': 'province', 'borough': 'district', 'neighborhood': 'district', 'school': 'neighborhood', 'learning': 'school'}
 NS = 'http://www.sitemaps.org/schemas/sitemap/0.9'
 
 
@@ -62,6 +62,8 @@ def validate_regions(regions):
             parent = ids.get(item.get('parent_id'))
             if not parent or parent['kind'] != KINDS[kind]:
                 raise ValueError('Invalid hierarchy: ' + item['id'])
+            if kind == 'borough' and (parent.get('parent_id') != 'gyeonggi' or not parent['name'].endswith('시')):
+                raise ValueError('Borough requires a Gyeonggi city parent: ' + item['id'])
         if item['status'] == 'published':
             problems = publication_problems(item, ids)
             if problems:
@@ -76,7 +78,7 @@ def confirmed_operator_coverage(item):
     confirmation = item.get('service_confirmation', {})
     try:
         checked = date.fromisoformat(confirmation['confirmed_on'])
-        return item['kind'] in {'province', 'district'} and confirmation.get('confirmed_by') == 'site_operator' and confirmation.get('region_id') == item['id'] and confirmation.get('coverage_confirmed') is True and bool(confirmation.get('scope')) and checked <= date.today()
+        return item['kind'] in {'province', 'district', 'borough'} and confirmation.get('confirmed_by') == 'site_operator' and confirmation.get('region_id') == item['id'] and confirmation.get('coverage_confirmed') is True and bool(confirmation.get('scope')) and checked <= date.today()
     except (KeyError, TypeError, ValueError):
         return False
 
@@ -304,6 +306,8 @@ class Builder:
         path = region_path(item, self.ids)
         parent = self.ids[item['parent_id']]
         parent_path = region_path(parent, self.ids)
+        is_borough = item['kind'] == 'borough'
+        province = self.ids[parent['parent_id']] if is_borough else parent
         sections = []
         for section in item['sections']:
             paragraphs = ''.join('<p class="lead">' + esc(p) + '</p>' for p in section['paragraphs'])
@@ -322,9 +326,23 @@ class Builder:
                         inside += '<p>행정동: ' + esc(' · '.join(place['administrative_dongs'])) + '</p>'
                     places.append('<a class="district-card" href="' + esc(self.link(path, region_path(child, self.ids))) + '">' + inside + '</a>' if available else '<article class="district-card">' + inside + '</article>')
                 cards = '<div class="district-grid neighborhood-grid">' + ''.join(places) + '</div>'
+            if section.get('borough_grid'):
+                borough_cards = []
+                for entry in item['boroughs']:
+                    child = self.ids[entry['page_id']]
+                    if child['kind'] != 'borough' or child['parent_id'] != item['id'] or child['status'] != 'published':
+                        raise ValueError('Invalid city borough link: ' + entry['page_id'])
+                    borough_cards.append('<a class="district-card" href="' + esc(self.link(path, region_path(child, self.ids))) + '"><h3>' + esc(child['name']) + ' 과외</h3><p>' + esc(entry['description']) + '</p></a>')
+                cards = '<div class="district-grid">' + ''.join(borough_cards) + '</div>'
             sections.append('<section class="section city-section"><div class="wrap"><h2>' + esc(section['heading']) + '</h2>' + paragraphs + cards + '</div></section>')
         faq = ''.join('<details><summary>' + esc(q['question']) + '</summary><p>' + esc(q['answer']) + '</p></details>' for q in item['faq'])
-        content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / ' + esc(item['slug'].upper()) + ' LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>' + esc(item['name']) + ' 과외, 학부모가 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>' + esc(parent['name']) + '의 다른 지역도 함께 살펴보세요.</h2><p class="lead">' + esc(parent['name']) + ' 대표 페이지에서 ' + str(len(parent['districts'])) + '개 ' + esc(parent.get('district_label', '자치구')) + ' 안내를 확인하고, 전국 안내에서 학년·과목·수업 방식별 정보를 살펴보세요.</p><div class="return-links"><a class="button" href="' + esc(self.link(path, parent_path)) + '">' + esc(parent['name']) + ' 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a></div><p class="note">' + esc(item['name']) + ' 서비스 범위와 동네 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 지역명은 지점·사무실·학교 전담 강사의 위치를 의미하지 않습니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / ' + esc(item['slug'].upper()) + '</p><h2>' + esc(item.get('cta_heading', item['name'] + ' 전 지역, 우리 아이의 다음 공부를 상담하세요.')) + '</h2><p>학년·과목·동네와 희망 수업 방식, 가능한 시간을 알려주세요.</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">' + esc(item.get('cta_note', '구체적인 일정·진행 조건과 시강 방법은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.')) + '</p></div></section>'
+        return_heading = parent['name'] + '의 다른 지역도 함께 살펴보세요.'
+        return_lead = parent['name'] + ' 대표 페이지에서 ' + str(len(parent.get('districts', parent.get('boroughs', [])))) + '개 ' + parent.get('district_label', '자치구') + ' 안내를 확인하고, 전국 안내에서 학년·과목·수업 방식별 정보를 살펴보세요.'
+        return_links = '<a class="button" href="' + esc(self.link(path, parent_path)) + '">' + esc(parent['name']) + ' 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a>'
+        if is_borough:
+            return_lead = parent['name'] + ' 대표 페이지에서 같은 도시의 일반구를 살펴보고, 경기도 대표에서 다른 시·군과 학년·과목 안내를 확인하세요.'
+            return_links = '<a class="button" href="' + esc(self.link(path, parent_path)) + '">' + esc(parent['name']) + ' 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, region_path(province, self.ids))) + '">경기도 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a>'
+        content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / ' + esc(item['slug'].upper()) + ' LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>' + esc(item['name']) + ' 과외, 학부모가 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>' + esc(return_heading) + '</h2><p class="lead">' + esc(return_lead) + '</p><div class="return-links">' + return_links + '</div><p class="note">' + esc(item['name']) + ' 서비스 범위와 동네 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 지역명은 지점·사무실·학교 전담 강사의 위치를 의미하지 않습니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / ' + esc(item['slug'].upper()) + '</p><h2>' + esc(item.get('cta_heading', item['name'] + ' 전 지역, 우리 아이의 다음 공부를 상담하세요.')) + '</h2><p>학년·과목·동네와 희망 수업 방식, 가능한 시간을 알려주세요.</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">' + esc(item.get('cta_note', '구체적인 일정·진행 조건과 시강 방법은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.')) + '</p></div></section>'
         css = REGION_CSS + '''
 .neighborhood-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.neighborhood-grid .district-card p{font-size:12px;line-height:1.9}.return-links{display:flex;flex-wrap:wrap;gap:14px}@media(max-width:640px){.neighborhood-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.neighborhood-grid .district-card p{font-size:11px}.return-links{flex-direction:column}.return-links .button{align-self:flex-start}}
 '''
@@ -343,9 +361,18 @@ class Builder:
             {'@context': 'https://schema.org', '@type': 'Service', '@id': canonical + '#service', 'url': canonical, 'name': item.get('service_name', self.site['brand'] + ' ' + item['name'] + ' 방문과외·화상과외'), 'description': item.get('service_description', item['description']), 'serviceType': item.get('service_type', '초등·중등·고등 영어·수학·국어·사회·과학 방문과외 및 화상과외'), 'provider': {'@type': 'Organization', 'name': self.site['brand'], 'url': self.base, 'telephone': self.site['phone']}, 'areaServed': {'@type': 'AdministrativeArea', 'name': item['official_name'], 'containedInPlace': {'@type': 'AdministrativeArea', 'name': parent['official_name']}}, 'audience': {'@type': 'Audience', 'audienceType': '초등학생·중학생·고등학생'}},
             {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q['question'], 'acceptedAnswer': {'@type': 'Answer', 'text': q['answer']}} for q in item['faq']]},
         ]
+        if is_borough:
+            ancestors = [province, parent, item]
+            schemas[0]['itemListElement'] = schemas[0]['itemListElement'][:2] + [
+                {'@type': 'ListItem', 'position': j + 3, 'name': r['name'] + ' 과외', 'item': self.canonical(region_path(r, self.ids))}
+                for j, r in enumerate(ancestors)
+            ]
+            schemas[1]['areaServed']['containedInPlace']['containedInPlace'] = {'@type': 'AdministrativeArea', 'name': province['official_name']}
         structured = json.dumps(schemas, ensure_ascii=False).replace('<', r'\u003c')
         output = self.layout(path, item['title'], item['description'], item['name'] + ' 과외', content, css)
-        output = output.replace('<span aria-current="page">' + esc(item['name']) + ' 과외</span>', '<a href="' + esc(self.link(path, parent_path)) + '">' + esc(parent['name']) + ' 과외</a><span aria-hidden="true">/</span><span aria-current="page">' + esc(item['name']) + ' 과외</span>')
+        breadcrumb_parents = [province, parent] if is_borough else [parent]
+        breadcrumb_links = ''.join('<a href="' + esc(self.link(path, region_path(r, self.ids))) + '">' + esc(r['name']) + ' 과외</a><span aria-hidden="true">/</span>' for r in breadcrumb_parents)
+        output = output.replace('<span aria-current="page">' + esc(item['name']) + ' 과외</span>', breadcrumb_links + '<span aria-current="page">' + esc(item['name']) + ' 과외</span>')
         self.outputs[path] = output.replace('</head>', '<script type="application/ld+json">' + structured + '</script></head>')
 
     def build_region(self, item):

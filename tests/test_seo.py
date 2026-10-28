@@ -69,9 +69,15 @@ class Document(HTMLParser):
 
 
 class SEOTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.baseline_builder = Builder()
+        cls.baseline_builder.build()
+
     def setUp(self):
-        self.builder = Builder()
-        self.builder.build()
+        # Keep mutation tests isolated without repeating the same expensive build.
+        # The reproducibility test below still performs independent fresh builds.
+        self.builder = copy.deepcopy(self.baseline_builder)
 
     def test_generated_output_is_current_and_reproducible(self):
         self.builder.save(check=True)
@@ -982,6 +988,75 @@ class SEOTests(unittest.TestCase):
         self.assertIn('삼국유사면', self.builder.outputs['regions/daegu/gunwi/index.html'])
         self.assertIn('대구광역시에 속하는 군', self.builder.outputs['regions/daegu/gunwi/index.html'])
 
+    def test_gyeonggi_17_boroughs_hierarchy_sources_links_schema_and_guards(self):
+        expected = {
+            'suwon': {'yeongtong': '영통구', 'jangan': '장안구', 'gwonseon': '권선구', 'paldal': '팔달구'},
+            'yongin': {'suji': '수지구', 'giheung': '기흥구', 'cheoin': '처인구'},
+            'seongnam': {'bundang': '분당구', 'sujeong': '수정구', 'jungwon': '중원구'},
+            'goyang': {'ilsandong': '일산동구', 'ilsanseo': '일산서구', 'deogyang': '덕양구'},
+            'anyang': {'dongan': '동안구', 'manan': '만안구'},
+            'ansan': {'danwon': '단원구', 'sangnok': '상록구'},
+        }
+        source = json.loads((ROOT / 'data/seo/gyeonggi_borough_geography.json').read_text())
+        refs = {r['page_id']: r for r in source['boroughs']}
+        self.assertEqual(len(refs), 17)
+        self.assertEqual(source['source']['version'], '20261001')
+        boroughs = [r for r in self.builder.regions if r['kind'] == 'borough']
+        self.assertEqual(len(boroughs), 17)
+        topics = set()
+        sitemap_urls = [r.text for r in ET.fromstring(self.builder.outputs['sitemap.xml']).iter('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
+        self.assertEqual(len(sitemap_urls), 146)
+        self.assertEqual(len(set(sitemap_urls)), 146)
+        for city_slug, targets in expected.items():
+            parent = self.builder.ids['gyeonggi-' + city_slug]
+            parent_path = region_path(parent, self.builder.ids)
+            parent_text = self.builder.outputs[parent_path]
+            self.assertEqual({x['slug']: x['name'] for x in parent['boroughs']}, targets)
+            for slug, name in targets.items():
+                item = self.builder.ids[parent['id'] + '-' + slug]
+                path = region_path(item, self.builder.ids)
+                self.assertEqual(path, 'regions/gyeonggi/' + city_slug + '/' + slug + '/index.html')
+                text = self.builder.outputs[path]
+                self.assertEqual(item['parent_id'], parent['id'])
+                self.assertEqual(item['official_name'], parent['official_name'] + ' ' + name)
+                self.assertIn('href="' + slug + '/"', parent_text)
+                self.assertIn('href="../"', text)
+                self.assertIn('href="../../"', text)
+                self.assertIn('tel:01043776964', text)
+                self.assertNotIn('1:1', json.dumps(item, ensure_ascii=False))
+                self.assertTrue(confirmed_operator_coverage(item))
+                actual_dongs = {d for p in item['neighborhoods'] for d in p['administrative_dongs']}
+                self.assertEqual(actual_dongs, {d['name'] for d in refs[item['id']]['administrative_dongs']})
+                topics.add(next(s['heading'] for s in item['sections'] if s.get('checklist')))
+                doc = Document(text)
+                canonical = self.builder.base + path.removesuffix('index.html')
+                self.assertEqual(doc.canonical, [canonical])
+                self.assertEqual(doc.og['og:url'], [canonical])
+                self.assertIn(canonical, sitemap_urls)
+                breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+                trail = breadcrumb['itemListElement']
+                self.assertEqual(len(trail), 5)
+                self.assertEqual(trail[2]['item'], self.builder.base + 'regions/gyeonggi/')
+                self.assertEqual(trail[3]['item'], self.builder.canonical(parent_path))
+                self.assertEqual(trail[4]['item'], canonical)
+                self.assertEqual(service['areaServed']['name'], item['official_name'])
+                self.assertEqual(service['areaServed']['containedInPlace']['name'], parent['official_name'])
+                self.assertEqual(service['areaServed']['containedInPlace']['containedInPlace']['name'], '경기도')
+                self.assertFalse(any(k in service for k in ('offers', 'aggregateRating', 'review', 'address')))
+                self.assertEqual(len(faq['mainEntity']), 5)
+                for shown, structured in zip(item['faq'], faq['mainEntity']):
+                    self.assertEqual(shown['question'], structured['name'])
+                    self.assertEqual(shown['answer'], structured['acceptedAnswer']['text'])
+        self.assertEqual(len(topics), 17)
+        invalid = copy.deepcopy(self.builder.regions)
+        next(r for r in invalid if r['kind'] == 'borough')['parent_id'] = 'gyeonggi'
+        with self.assertRaises(ValueError):
+            validate_regions(invalid)
+        invalid = copy.deepcopy(self.builder.regions)
+        next(r for r in invalid if r['kind'] == 'borough')['parent_id'] = 'gyeonggi-gapyeong'
+        with self.assertRaises(ValueError):
+            validate_regions(invalid)
+
     def test_gyeonggi_hub_and_31_cities_counties_have_correct_hierarchy_and_unique_content(self):
         city = self.builder.ids['gyeonggi']
         expected = {'수원시', '성남시', '의정부시', '안양시', '부천시', '광명시', '평택시', '동두천시', '안산시', '고양시', '과천시', '구리시', '남양주시', '오산시', '시흥시', '군포시', '의왕시', '하남시', '용인시', '파주시', '이천시', '안성시', '김포시', '화성시', '광주시', '양주시', '포천시', '여주시', '연천군', '가평군', '양평군'}
@@ -1004,7 +1079,7 @@ class SEOTests(unittest.TestCase):
             self.assertIn('href="' + card['slug'] + '/"', hub)
             self.assertIn('경기도 과외 대표 안내', text)
             self.assertIn('tel:01043776964', text)
-            self.assertFalse(any(r.get('parent_id') == item['id'] for r in self.builder.regions))
+            self.assertTrue(all(r['kind'] == 'borough' for r in self.builder.regions if r.get('parent_id') == item['id']))
             info = next(r for r in item['sections'] if r.get('checklist'))
             self.assertGreaterEqual(len(info['paragraphs']), 3)
             topics.add(info['heading'])
