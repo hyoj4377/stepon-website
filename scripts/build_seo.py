@@ -62,8 +62,8 @@ def validate_regions(regions):
             parent = ids.get(item.get('parent_id'))
             if not parent or parent['kind'] != KINDS[kind]:
                 raise ValueError('Invalid hierarchy: ' + item['id'])
-            if kind == 'borough' and (parent.get('parent_id') != 'gyeonggi' or not parent['name'].endswith('시')):
-                raise ValueError('Borough requires a Gyeonggi city parent: ' + item['id'])
+            if kind == 'borough' and ((parent.get('parent_id') != 'gyeonggi' and parent['id'] != 'chungbuk-cheongju') or not parent['name'].endswith('시')):
+                raise ValueError('Borough requires a supported city parent: ' + item['id'])
         if item['status'] == 'published':
             problems = publication_problems(item, ids)
             if problems:
@@ -340,8 +340,16 @@ class Builder:
         return_lead = parent['name'] + ' 대표 페이지에서 ' + str(len(parent.get('districts', parent.get('boroughs', [])))) + '개 ' + parent.get('district_label', '자치구') + ' 안내를 확인하고, 전국 안내에서 학년·과목·수업 방식별 정보를 살펴보세요.'
         return_links = '<a class="button" href="' + esc(self.link(path, parent_path)) + '">' + esc(parent['name']) + ' 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a>'
         if is_borough:
-            return_lead = parent['name'] + ' 대표 페이지에서 같은 도시의 일반구를 살펴보고, 경기도 대표에서 다른 시·군과 학년·과목 안내를 확인하세요.'
-            return_links = '<a class="button" href="' + esc(self.link(path, parent_path)) + '">' + esc(parent['name']) + ' 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, region_path(province, self.ids))) + '">경기도 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a>'
+            return_lead = parent['name'] + ' 대표 페이지에서 같은 도시의 일반구를 살펴보고, ' + province['name'] + ' 대표에서 다른 시·군과 학년·과목 안내를 확인하세요.'
+            return_links = '<a class="button" href="' + esc(self.link(path, parent_path)) + '">' + esc(parent['name']) + ' 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, region_path(province, self.ids))) + '">' + esc(province['name']) + ' 과외 대표 안내 →</a><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a>'
+        if is_borough and item.get('sibling_navigation'):
+            for entry in parent.get('boroughs', []):
+                sibling = self.ids[entry['page_id']]
+                if sibling['id'] == item['id']:
+                    continue
+                if sibling['parent_id'] != parent['id'] or sibling['kind'] != 'borough' or sibling['status'] != 'published':
+                    raise ValueError('Invalid sibling borough link: ' + entry['page_id'])
+                return_links += '<a class="button" href="' + esc(self.link(path, region_path(sibling, self.ids))) + '">' + esc(sibling['name']) + ' 과외 안내 →</a>'
         content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / ' + esc(item['slug'].upper()) + ' LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>' + esc(item['name']) + ' 과외, 학부모가 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>' + esc(return_heading) + '</h2><p class="lead">' + esc(return_lead) + '</p><div class="return-links">' + return_links + '</div><p class="note">' + esc(item['name']) + ' 서비스 범위와 동네 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 지역명은 지점·사무실·학교 전담 강사의 위치를 의미하지 않습니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / ' + esc(item['slug'].upper()) + '</p><h2>' + esc(item.get('cta_heading', item['name'] + ' 전 지역, 우리 아이의 다음 공부를 상담하세요.')) + '</h2><p>학년·과목·동네와 희망 수업 방식, 가능한 시간을 알려주세요.</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">' + esc(item.get('cta_note', '구체적인 일정·진행 조건과 시강 방법은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.')) + '</p></div></section>'
         css = REGION_CSS + '''
 .neighborhood-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.neighborhood-grid .district-card p{font-size:12px;line-height:1.9}.return-links{display:flex;flex-wrap:wrap;gap:14px}@media(max-width:640px){.neighborhood-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.neighborhood-grid .district-card p{font-size:11px}.return-links{flex-direction:column}.return-links .button{align-self:flex-start}}

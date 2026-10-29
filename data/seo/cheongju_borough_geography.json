@@ -1,0 +1,79 @@
+{
+  "source": {
+    "repository": "https://github.com/vuski/admdongkor",
+    "commit": "d5d5a821c8de6cc337d47eeca604d7af76271c9b",
+    "version": "20261001",
+    "classification": "third_party_derived_administrative_dataset",
+    "limitation": "공식 원문 직접 검증 및 최신 경계는 미확인",
+    "sha256": "64c8413a24804515f38430530ba2efc8e01734c4e6c7d414879469a144855402"
+  },
+  "boroughs": [
+    {
+      "page_id": "chungbuk-cheongju-sangdang",
+      "name": "상당구",
+      "administrative_areas": [
+        "낭성면",
+        "미원면",
+        "가덕면",
+        "남일면",
+        "문의면",
+        "중앙동",
+        "성안동",
+        "탑·대성동",
+        "영운동",
+        "금천동",
+        "용담·명암·산성동",
+        "용암1동",
+        "용암2동"
+      ]
+    },
+    {
+      "page_id": "chungbuk-cheongju-seowon",
+      "name": "서원구",
+      "administrative_areas": [
+        "남이면",
+        "현도면",
+        "사직1동",
+        "사직2동",
+        "사창동",
+        "모충동",
+        "산남동",
+        "분평동",
+        "수곡1동",
+        "수곡2동",
+        "성화·개신·죽림동"
+      ]
+    },
+    {
+      "page_id": "chungbuk-cheongju-heungdeok",
+      "name": "흥덕구",
+      "administrative_areas": [
+        "오송읍",
+        "강내면",
+        "옥산면",
+        "운천·신봉동",
+        "복대1동",
+        "복대2동",
+        "가경동",
+        "봉명1동",
+        "봉명2·송정동",
+        "강서1동",
+        "강서2동"
+      ]
+    },
+    {
+      "page_id": "chungbuk-cheongju-cheongwon",
+      "name": "청원구",
+      "administrative_areas": [
+        "내수읍",
+        "오창읍",
+        "북이면",
+        "우암동",
+        "내덕1동",
+        "내덕2동",
+        "율량·사천동",
+        "오근장동"
+      ]
+    }
+  ]
+}
