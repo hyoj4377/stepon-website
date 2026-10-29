@@ -162,7 +162,7 @@ class SEOTests(unittest.TestCase):
             self.assertIn('grid-auto-rows:1fr', text)
             pages += 1
             cards += len(shown)
-        self.assertEqual(pages, 158)
+        self.assertEqual(pages, 173)
         self.assertGreater(cards, 1000)
         self.assertNotIn(target, (ROOT / 'data/seo/regions.json').read_text())
 
@@ -205,6 +205,41 @@ class SEOTests(unittest.TestCase):
         next(x for x in invalid if x['id'] == 'chungbuk-cheongju-sangdang')['parent_id'] = 'chungbuk-chungju'
         with self.assertRaises(ValueError):
             validate_regions(invalid)
+
+    def test_chungnam_15_city_county_guides_and_geography(self):
+        hub = self.builder.ids['chungnam']
+        self.assertEqual(hub['official_name'], '충청남도')
+        children = [r for r in self.builder.regions if r.get('parent_id') == 'chungnam']
+        self.assertEqual(len(children), 15)
+        self.assertEqual(sum(r['name'].endswith('시') for r in children), 8)
+        self.assertEqual(sum(r['name'].endswith('군') for r in children), 7)
+        refs = json.loads((ROOT / 'data/seo/chungnam_geography.json').read_text())['regions']
+        self.assertEqual(sum(len(ns) for r in refs for ns in r['groups'].values()), 208)
+        parent_text = self.builder.outputs['regions/chungnam/index.html']
+        topics = set()
+        for item in children:
+            path = region_path(item, self.builder.ids)
+            text = self.builder.outputs[path]
+            self.assertIn('href="' + item['slug'] + '/"', parent_text)
+            self.assertIn('href="../"', text)
+            self.assertIn(self.builder.canonical(path), text)
+            self.assertIn(item['title'], text)
+            self.assertIn(item['h1'], text)
+            ref = next(r for r in refs if r['page_id'] == item['id'])
+            names = [(g.removeprefix('천안시') + ' ' + n if item['name'] == '천안시' else n) for g, ns in ref['groups'].items() for n in ns]
+            self.assertEqual([p['name'] for p in item['neighborhoods']], names)
+            self.assertNotIn('충청북도', text)
+            self.assertNotIn('강원특별자치도', text)
+            self.assertNotIn('1:1', json.dumps(item, ensure_ascii=False))
+            self.assertNotIn('1:1', text)
+            self.assertTrue(all(set(p) == {'name', 'slug', 'page_id'} for p in item['neighborhoods']))
+            topics.add(item['sections'][2]['heading'])
+        for key in ['title', 'description', 'h1']:
+            self.assertEqual(len({r[key] for r in children}), 15)
+        self.assertEqual(len(topics), 15)
+        cheonan = next(r for r in children if r['name'] == '천안시')
+        self.assertEqual({p['name'].split()[0] for p in cheonan['neighborhoods']}, {'동남구', '서북구'})
+        self.assertIn('홍성군 홍북읍과 예산군 삽교읍', parent_text)
 
     def test_chungbuk_11_city_county_guides(self):
         hub = self.builder.ids['chungbuk']
@@ -1124,8 +1159,8 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(boroughs), 17)
         topics = set()
         sitemap_urls = [r.text for r in ET.fromstring(self.builder.outputs['sitemap.xml']).iter('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
-        self.assertEqual(len(sitemap_urls), 181)
-        self.assertEqual(len(set(sitemap_urls)), 181)
+        self.assertEqual(len(sitemap_urls), 197)
+        self.assertEqual(len(set(sitemap_urls)), 197)
         for city_slug, targets in expected.items():
             parent = self.builder.ids['gyeonggi-' + city_slug]
             parent_path = region_path(parent, self.builder.ids)
