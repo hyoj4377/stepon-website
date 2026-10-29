@@ -133,6 +133,31 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(urls), len(set(urls)))
         self.assertTrue(all(url.startswith(self.builder.base) for url in urls))
 
+    def test_chungbuk_11_city_county_guides(self):
+        hub = self.builder.ids['chungbuk']
+        self.assertEqual(hub['official_name'], '충청북도')
+        children = [r for r in self.builder.regions if r.get('parent_id') == 'chungbuk']
+        self.assertEqual(len(children), 11)
+        self.assertEqual(sum(r['name'].endswith('시') for r in children), 3)
+        self.assertEqual(sum(r['name'].endswith('군') for r in children), 8)
+        refs = json.loads((ROOT / 'data/seo/chungbuk_geography.json').read_text())['regions']
+        self.assertEqual(sum(len(names) for r in refs for names in r['groups'].values()), 153)
+        for item in children:
+            path = region_path(item, self.builder.ids)
+            text = self.builder.outputs[path]
+            self.assertIn(self.builder.canonical(path), text)
+            self.assertIn(item['title'], text)
+            self.assertIn(item['h1'], text)
+            ref = next(r for r in refs if r['page_id'] == item['id'])
+            names = [(g.removeprefix('청주시') + ' ' + n if item['name'] == '청주시' else n) for g, ns in ref['groups'].items() for n in ns]
+            self.assertEqual([x['name'] for x in item['neighborhoods']], names)
+            self.assertNotIn('춘천', text)
+            self.assertNotIn('강원특별자치도', text)
+        for key in ['title', 'description', 'h1']:
+            self.assertEqual(len({r[key] for r in children}), 11)
+        cheongju = next(r for r in children if r['name'] == '청주시')
+        self.assertEqual({x['name'].split()[0] for x in cheongju['neighborhoods']}, {'상당구', '서원구', '흥덕구', '청원구'})
+
     def test_gangwon_18_city_county_guides(self):
         hub = self.builder.ids['gangwon']
         self.assertEqual(hub['official_name'], '강원특별자치도')
@@ -1026,8 +1051,8 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(boroughs), 17)
         topics = set()
         sitemap_urls = [r.text for r in ET.fromstring(self.builder.outputs['sitemap.xml']).iter('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
-        self.assertEqual(len(sitemap_urls), 165)
-        self.assertEqual(len(set(sitemap_urls)), 165)
+        self.assertEqual(len(sitemap_urls), 177)
+        self.assertEqual(len(set(sitemap_urls)), 177)
         for city_slug, targets in expected.items():
             parent = self.builder.ids['gyeonggi-' + city_slug]
             parent_path = region_path(parent, self.builder.ids)
