@@ -273,7 +273,7 @@ class Builder:
             if section.get('cards'):
                 cards = '<div class="city-cards">' + ''.join('<a class="card" href="' + esc(self.link(path, 'guides/' + card['slug'] + '/index.html')) + '"><h3>' + esc(card['heading']) + '</h3><p>' + esc(card['description']) + '</p><span class="card-arrow">학습 안내 보기 →</span></a>' for card in section['cards']) + '</div>'
             if section.get('area_cards'):
-                cards = '<div class="district-grid">' + ''.join('<article class="district-card"><h3>' + esc(card['heading']) + '</h3><p>' + esc(card['description']) + '</p></article>' for card in section['area_cards']) + '</div>'
+                cards = '<div class="district-grid neighborhood-grid">' + ''.join('<article class="district-card"><h3>' + esc(card['heading']) + ' 과외</h3></article>' for card in section['area_cards']) + '</div>'
             if section.get('district_grid') or section['heading'] == '서울 25개 자치구 과외 안내':
                 districts = []
                 published_count = 0
@@ -289,6 +289,8 @@ class Builder:
         faq = ''.join('<details><summary>' + esc(q['question']) + '</summary><p>' + esc(q['answer']) + '</p></details>' for q in item['faq'])
         content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / ' + esc(item['slug'].upper()) + ' LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>' + esc(item['name']) + ' 과외, 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>전국 지역 안내와 함께 살펴보세요.</h2><p class="lead">' + esc(item['name']) + ' 외 다른 지역의 안내와 수업 방식·학년·과목별 정보를 전국 안내에서 확인할 수 있습니다.</p><a class="button" href="' + esc(self.link(path, 'regions/index.html')) + '">전국 지역별 과외 안내 →</a><p class="note">' + esc(item['name']) + ' 전 지역 서비스 범위와 ' + esc(item.get('district_label', '자치구')) + ' 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 실제 수업 일정과 조건은 상담에서 조율합니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / ' + esc(item['slug'].upper()) + '</p><h2>우리 동네에서 시작하는 ' + esc(item['name']) + ' 과외 상담</h2><p>학년·과목·' + esc(item.get('consultation_area_prompt', item.get('district_label', '자치구') + '와 동네')) + ', 희망 수업 방식과 시간을 알려주세요.</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">시강 일정과 진행 조건은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.</p></div></section>'
         css = REGION_CSS
+        if any(section.get('area_cards') for section in item['sections']):
+            css += '\n.neighborhood-grid{grid-auto-rows:1fr}.neighborhood-grid .district-card{padding:18px 16px;min-height:64px;display:flex;align-items:center}\n'
         canonical = self.canonical(path)
         schema = [
             {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
@@ -321,9 +323,7 @@ class Builder:
                 for place in item['neighborhoods']:
                     child = self.ids.get(place.get('page_id'))
                     available = child and child['kind'] == 'neighborhood' and child['parent_id'] == item['id'] and child['status'] == 'published'
-                    inside = '<h3>' + esc(place['name']) + ' 과외</h3><p>' + esc(place['focus']) + '</p>'
-                    if place.get('administrative_dongs'):
-                        inside += '<p>행정동: ' + esc(' · '.join(place['administrative_dongs'])) + '</p>'
+                    inside = '<h3>' + esc(place['name']) + ' 과외</h3>'
                     places.append('<a class="district-card" href="' + esc(self.link(path, region_path(child, self.ids))) + '">' + inside + '</a>' if available else '<article class="district-card">' + inside + '</article>')
                 cards = '<div class="district-grid neighborhood-grid">' + ''.join(places) + '</div>'
             if section.get('borough_grid'):
@@ -352,7 +352,7 @@ class Builder:
                 return_links += '<a class="button" href="' + esc(self.link(path, region_path(sibling, self.ids))) + '">' + esc(sibling['name']) + ' 과외 안내 →</a>'
         content = '<section class="hero"><div class="wrap hero-grid"><div><p class="eyebrow">STEP ON / ' + esc(item['slug'].upper()) + ' LEARNING</p><h1>' + esc(item['h1']) + '</h1><p class="intro">' + esc(item['intro']) + '</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '</div>' + self.image(item['photo']) + '</div></section>' + ''.join(sections) + '<section class="section soft"><div class="wrap faq"><h2>' + esc(item['name']) + ' 과외, 학부모가 자주 묻는 질문</h2>' + faq + '</div></section><section class="section"><div class="wrap"><h2>' + esc(return_heading) + '</h2><p class="lead">' + esc(return_lead) + '</p><div class="return-links">' + return_links + '</div><p class="note">' + esc(item['name']) + ' 서비스 범위와 동네 목록은 운영자가 제공한 정보를 기준으로 안내합니다. 지역명은 지점·사무실·학교 전담 강사의 위치를 의미하지 않습니다.</p></div></section><section class="section cta"><div class="wrap"><p class="eyebrow">YOUR NEXT STEP / ' + esc(item['slug'].upper()) + '</p><h2>' + esc(item.get('cta_heading', item['name'] + ' 전 지역, 우리 아이의 다음 공부를 상담하세요.')) + '</h2><p>학년·과목·동네와 희망 수업 방식, 가능한 시간을 알려주세요.</p>' + self.consult('consultation_url', item['name'] + ' 과외 상담 신청') + '<br>' + self.phone() + '<p class="note">' + esc(item.get('cta_note', '구체적인 일정·진행 조건과 시강 방법은 상담에서 확인합니다. 학생별 학습 과정과 결과에는 차이가 있을 수 있습니다.')) + '</p></div></section>'
         css = REGION_CSS + '''
-.neighborhood-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.neighborhood-grid .district-card p{font-size:12px;line-height:1.9}.return-links{display:flex;flex-wrap:wrap;gap:14px}@media(max-width:640px){.neighborhood-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.neighborhood-grid .district-card p{font-size:11px}.return-links{flex-direction:column}.return-links .button{align-self:flex-start}}
+.neighborhood-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:1fr}.neighborhood-grid .district-card{padding:18px 16px;min-height:64px;display:flex;align-items:center}.return-links{display:flex;flex-wrap:wrap;gap:14px}@media(max-width:640px){.neighborhood-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.return-links{flex-direction:column}.return-links .button{align-self:flex-start}}
 '''
         columns = item.get('neighborhood_columns', 3)
         if columns not in {2, 3, 4}:

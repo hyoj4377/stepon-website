@@ -133,6 +133,39 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(urls), len(set(urls)))
         self.assertTrue(all(url.startswith(self.builder.base) for url in urls))
 
+    def test_all_neighborhood_cards_show_only_region_headings(self):
+        pages, cards = 0, 0
+        target = '실제 수업 주소·과목·가능한 시간을 확인합니다. 동네 안내는 상주 강사나 즉시 배정을 의미하지 않습니다.'
+        for item in self.builder.regions:
+            if item['status'] != 'published':
+                continue
+            expected = []
+            for section in item['sections']:
+                if section.get('neighborhood_grid'):
+                    expected.extend(p['name'] + ' 과외' for p in item['neighborhoods'])
+                if section.get('area_cards'):
+                    expected.extend(c['heading'] + ' 과외' for c in section['area_cards'])
+            if not expected:
+                continue
+            text = self.builder.outputs[region_path(item, self.builder.ids)]
+            grids = re.findall(r'<div class="district-grid neighborhood-grid">(.*?)</div>', text, re.S)
+            shown = []
+            for grid in grids:
+                self.assertNotIn('<p', grid)
+                entries = re.findall(r'<(?:article|a) class="district-card"[^>]*>(.*?)</(?:article|a)>', grid, re.S)
+                for entry in entries:
+                    self.assertRegex(entry, r'^<h3>[^<]+</h3>$')
+                    shown.append(html.unescape(re.search(r'<h3>(.*?)</h3>', entry)[1]))
+            self.assertEqual(shown, expected, item['id'])
+            self.assertNotIn(target, text)
+            self.assertIn('min-height:64px', text)
+            self.assertIn('grid-auto-rows:1fr', text)
+            pages += 1
+            cards += len(shown)
+        self.assertEqual(pages, 158)
+        self.assertGreater(cards, 1000)
+        self.assertNotIn(target, (ROOT / 'data/seo/regions.json').read_text())
+
     def test_cheongju_four_boroughs_metadata_geography_and_navigation(self):
         parent = self.builder.ids['chungbuk-cheongju']
         refs = json.loads((ROOT / 'data/seo/cheongju_borough_geography.json').read_text())['boroughs']
@@ -593,7 +626,7 @@ class SEOTests(unittest.TestCase):
         self.assertEqual([p['name'] for p in item['neighborhoods']], ['공덕·아현 생활권', '대흥·신수 생활권', '서교·합정 생활권', '망원·성산 생활권', '상암 생활권'])
         self.assertTrue(all(p['page_id'] is None for p in item['neighborhoods']))
         for name in ['공덕동', '아현동', '신공덕동', '도화동', '염리동', '대흥동', '신수동', '용강동', '노고산동', '서교동', '합정동', '연남동', '상수동', '창전동', '동교동', '망원동', '성산동', '중동', '상암동', '토정동', '마포동', '현석동', '구수동', '하중동', '신정동', '당인동']:
-            self.assertIn(name, text)
+            self.assertIn(name, json.dumps(item, ensure_ascii=False))
         self.assertIn('중학생 수행평가와 지필평가를 함께 준비하는 학습 계획', text)
         self.assertIn('guides/performance-assessment/', text)
         self.assertIn('href="mapo/"', self.builder.outputs['regions/seoul/index.html'])
@@ -673,7 +706,7 @@ class SEOTests(unittest.TestCase):
         self.assertEqual([p['name'] for p in item['neighborhoods']], ['왕십리·행당 생활권', '금호·옥수 생활권', '성수 생활권', '응봉·마장·사근 생활권', '송정·용답 생활권'])
         self.assertTrue(all(p['page_id'] is None for p in item['neighborhoods']))
         for name in ['상왕십리동', '하왕십리동', '홍익동', '도선동', '행당동', '금호동1가', '금호동2가', '금호동3가', '금호동4가', '옥수동', '성수동1가', '성수동2가', '응봉동', '마장동', '사근동', '송정동', '용답동']:
-            self.assertIn(name, text)
+            self.assertIn(name, json.dumps(item, ensure_ascii=False))
         self.assertIn('초등에서 중등으로 넘어갈 때 달라지는 공부 습관과 내신 준비 방법', text)
         self.assertIn('학생이 직접 한 주에 할 공부', text)
         self.assertIn('시험 후에는 틀린 문제', text)
@@ -700,7 +733,7 @@ class SEOTests(unittest.TestCase):
         self.assertEqual([p['name'] for p in item['neighborhoods']], ['길음·돈암 생활권', '정릉 생활권', '종암·월곡 생활권', '장위·석관 생활권', '성북·삼선·동선 생활권', '안암·보문 생활권'])
         self.assertTrue(all(p['page_id'] is None for p in item['neighborhoods']))
         for name in ['길음동', '돈암동', '정릉동', '종암동', '하월곡동', '상월곡동', '장위동', '석관동', '성북동', '삼선동', '동선동', '동소문동', '안암동', '보문동']:
-            self.assertIn(name, text)
+            self.assertIn(name, json.dumps(item, ensure_ascii=False))
         self.assertIn('시험이 끝난 뒤 성적표와 오답을 활용해 다음 학기 공부 계획 세우는 방법', text)
         self.assertIn('어떤 조건을 놓쳤니?', text)
         self.assertIn('방학에는 모든 단원을 같은 분량으로', text)
@@ -757,7 +790,7 @@ class SEOTests(unittest.TestCase):
         for place, names in zip(item['neighborhoods'], expected):
             self.assertIsNone(place['page_id'])
             self.assertEqual(place['administrative_dongs'], names)
-            self.assertIn('<p>행정동: ' + html.escape(' · '.join(names), quote=True) + '</p>', text)
+            self.assertIn('<h3>' + html.escape(place['name'], quote=True) + ' 과외</h3>', text)
         self.assertNotIn('신정5동', text)
         self.assertIn('목동·신정동 중고등학생, 내신과 수능을 함께 준비하는 학습 계획', text)
         self.assertIn('공통수학', text)
@@ -788,9 +821,9 @@ class SEOTests(unittest.TestCase):
         for place, names in zip(item['neighborhoods'], expected):
             self.assertIsNone(place['page_id'])
             self.assertEqual(place['administrative_dongs'], names)
-            self.assertIn('<p>행정동: ' + html.escape(' · '.join(names), quote=True) + '</p>', text)
+            self.assertIn('<h3>' + html.escape(place['name'], quote=True) + ' 과외</h3>', text)
         self.assertNotIn('신길2동', text)
-        self.assertIn('법정동: 여의도동', text)
+        self.assertIn('법정동: 여의도동', json.dumps(item['neighborhoods'], ensure_ascii=False))
         self.assertIn('중·고등학생의 부족한 공부 시간을 효율적으로 관리하는 방법', text)
         self.assertIn('실제 사용한 시간을 구분', text)
         self.assertIn('href="yeongdeungpo/"', self.builder.outputs['regions/seoul/index.html'])
@@ -819,7 +852,7 @@ class SEOTests(unittest.TestCase):
         for place, names in zip(item['neighborhoods'], expected):
             self.assertIsNone(place['page_id'])
             self.assertEqual(place['administrative_dongs'], names)
-            self.assertIn('<p>행정동: ' + html.escape(' · '.join(names), quote=True) + '</p>', text)
+            self.assertIn('<h3>' + html.escape(place['name'], quote=True) + ' 과외</h3>', text)
         self.assertNotIn('한남1동', text)
         self.assertNotIn('한남2동', text)
         self.assertIn('초등학교부터 고등학교까지 학습 격차를 줄이는 공부 계획', text)
@@ -850,7 +883,7 @@ class SEOTests(unittest.TestCase):
         for place, names in zip(item['neighborhoods'], expected):
             self.assertIsNone(place['page_id'])
             self.assertEqual(place['administrative_dongs'], names)
-            self.assertIn('<p>행정동: ' + html.escape(' · '.join(names), quote=True) + '</p>', text)
+            self.assertIn('<h3>' + html.escape(place['name'], quote=True) + ' 과외</h3>', text)
         for nonexistent in ['진관1동', '진관2동', '녹번1동', '녹번2동']:
             self.assertNotIn(nonexistent, text)
         self.assertIn('은평뉴타운은 생활권 명칭', text)
@@ -1206,7 +1239,7 @@ class SEOTests(unittest.TestCase):
         for section in item['sections']:
             for card in section.get('area_cards', []):
                 self.assertIn(html.escape(card['heading']), text)
-                self.assertIn(html.escape(card['description']), text)
+                self.assertIn('<h3>' + html.escape(card['heading']) + ' 과외</h3>', text)
             for question in section.get('checklist', []):
                 self.assertIn('<li>' + html.escape(question) + '</li>', text)
         self.assertIn('거주 읍·면·동, 희망 수업 방식', text)
