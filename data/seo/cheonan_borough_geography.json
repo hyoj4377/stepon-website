@@ -1,0 +1,73 @@
+{
+  "source": {
+    "repository": "https://github.com/vuski/admdongkor",
+    "commit": "d5d5a821c8de6cc337d47eeca604d7af76271c9b",
+    "version": "20261001",
+    "classification": "third_party_derived_administrative_dataset",
+    "limitation": "공식 원문 직접 확인 및 최신 경계 대조는 미확인",
+    "sha256": "64c8413a24804515f38430530ba2efc8e01734c4e6c7d414879469a144855402"
+  },
+  "featured_area_basis": "Major living-area examples supplied in this task; administrative names matched to existing dated third-party data where applicable. Latest official legal boundaries not directly verified due proxy block.",
+  "boroughs": [
+    {
+      "page_id": "chungnam-cheonan-dongnam",
+      "name": "동남구",
+      "administrative_areas": [
+        "목천읍",
+        "풍세면",
+        "광덕면",
+        "북면",
+        "성남면",
+        "수신면",
+        "병천면",
+        "동면",
+        "중앙동",
+        "문성동",
+        "원성1동",
+        "원성2동",
+        "봉명동",
+        "일봉동",
+        "신방동",
+        "청룡동",
+        "신안동"
+      ],
+      "featured_living_areas": [
+        "신부동",
+        "청당동",
+        "원성동",
+        "봉명동",
+        "목천읍",
+        "병천면"
+      ]
+    },
+    {
+      "page_id": "chungnam-cheonan-seobuk",
+      "name": "서북구",
+      "administrative_areas": [
+        "성환읍",
+        "성거읍",
+        "직산읍",
+        "입장면",
+        "성정1동",
+        "성정2동",
+        "쌍용1동",
+        "쌍용2동",
+        "쌍용3동",
+        "백석동",
+        "불당1동",
+        "불당2동",
+        "부성1동",
+        "부성2동"
+      ],
+      "featured_living_areas": [
+        "불당동",
+        "두정동",
+        "성정동",
+        "백석동",
+        "쌍용동",
+        "성환읍",
+        "직산읍"
+      ]
+    }
+  ]
+}

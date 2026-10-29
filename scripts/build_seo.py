@@ -62,7 +62,7 @@ def validate_regions(regions):
             parent = ids.get(item.get('parent_id'))
             if not parent or parent['kind'] != KINDS[kind]:
                 raise ValueError('Invalid hierarchy: ' + item['id'])
-            if kind == 'borough' and ((parent.get('parent_id') != 'gyeonggi' and parent['id'] != 'chungbuk-cheongju') or not parent['name'].endswith('시')):
+            if kind == 'borough' and ((parent.get('parent_id') != 'gyeonggi' and parent['id'] not in {'chungbuk-cheongju', 'chungnam-cheonan'}) or not parent['name'].endswith('시')):
                 raise ValueError('Borough requires a supported city parent: ' + item['id'])
         if item['status'] == 'published':
             problems = publication_problems(item, ids)
