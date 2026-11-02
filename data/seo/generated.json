@@ -27,7 +27,7 @@
     "regions/chungnam/index.html": "497252dce36ad675e005c99173085961995dda951c4b78ad3a51cc247fd09852",
     "regions/jeonbuk/index.html": "598f570a26577a1df6672cc5c4632d68c88c420a78dff268aaa75c6227b5e4ac",
     "regions/jeonnam/index.html": "922e85b9f731bac1aab14f71df02dd23f4b18b7de155f083ad30601aab038e8a",
-    "regions/gyeongbuk/index.html": "4dd697634a5b99068e829579c737372c2c6e383e7ecb6144783ce0b25699ea31",
+    "regions/gyeongbuk/index.html": "395578c2fbc76e4466630738f78884ab3d08505217d7ac75e039b84e5b6e4992",
     "regions/seoul/gangnam/index.html": "8aba0eefc007c6514298d86d03b8da4d278880617821e06b532accf839060ed3",
     "regions/seoul/gangdong/index.html": "fe29d90b58be0ab655c2c5657a30ba7179ee5b8fb5d0b8bd0e02291fdc6de411",
     "regions/seoul/gangbuk/index.html": "854d1a9caaf40e17bdb518c137d43d36a89986904e8cb2680ab6d7f28b8b2536",
@@ -240,7 +240,7 @@
     "regions/jeonnam/wando/index.html": "f5b0e33934da0445a18b19ba33d265693cae916e9734c770fd086b8d214aff2b",
     "regions/jeonnam/jindo/index.html": "0b69b7c7c487d7150a009ad493373ab1cd32382111fbc4181a1bc86280aa83bd",
     "regions/jeonnam/sinan/index.html": "3872d454ed2a96f204f32802437c73fa68453d905b52ed0bd923484c66db3329",
-    "regions/gyeongbuk/pohang/index.html": "c106044b76ae2e1e5d05697087ac3a130fe1d564050743efce883fa6ef379055",
+    "regions/gyeongbuk/pohang/index.html": "149c4418714cf688b987ffb284167f172d19f9f1ac4577ce392644ad93269286",
     "regions/gyeongbuk/gyeongju/index.html": "7d9f2c2dcf4f280c91396a015c4e6cd8076303499903be0b3a0f3ce11f7169e8",
     "regions/gyeongbuk/gimcheon/index.html": "bc925dc4eabf8221689821aaf6cf4ee7fa749b437154cbb081ca889105656ed5",
     "regions/gyeongbuk/andong/index.html": "948d748130c678b0e835d986316a14fc72b25ed205f31745a0bca9aae61cf3f4",
@@ -262,6 +262,8 @@
     "regions/gyeongbuk/bonghwa/index.html": "d067191d60cf2fba62cf600521fe595165c742085d524b51d3472623395d4fa7",
     "regions/gyeongbuk/uljin/index.html": "f4e1ab534db2d01cf1ea65925408a23c03c3839b77df91033ccadfa006e64886",
     "regions/gyeongbuk/ulleung/index.html": "0b288c3e746360a24c491ec06bd559759b4fe6ddbe1cf57860e10eb1a5ff85d8",
-    "sitemap.xml": "ea5d580070a6307a355bcf74f2928824257cbd40bba98df0836964ef2a7b8010"
+    "regions/gyeongbuk/pohang/namgu/index.html": "511059f0f92867b7db1ef2578a46ac083094c990dd73be953547c9eb852c1195",
+    "regions/gyeongbuk/pohang/bukgu/index.html": "2321bbe9da198da8a4c4b382dfaef511578db37abc95f8341deaca41b0470e84",
+    "sitemap.xml": "c36c5e34d17ada94d90847852251157d7130bec0f12d5520446b79c5a70d633d"
   }
 }

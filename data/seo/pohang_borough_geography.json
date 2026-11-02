@@ -1,0 +1,78 @@
+{
+  "source": {
+    "repository": "https://github.com/vuski/admdongkor",
+    "commit": "d5d5a821c8de6cc337d47eeca604d7af76271c9b",
+    "version": "20261001",
+    "checked_on": "2026-11-02",
+    "classification": "third_party_derived_administrative_dataset",
+    "reported_parent_names": [
+      "경상북도"
+    ],
+    "limitation": "최신 공식 원문과 세부 경계 직접 대조는 프록시 차단으로 미확인",
+    "sha256": "64c8413a24804515f38430530ba2efc8e01734c4e6c7d414879469a144855402"
+  },
+  "featured_area_basis": "Major living-area examples supplied in attached task. Administrative names and district memberships matched to existing dated third-party data; latest official legal boundaries not directly verified due proxy block.",
+  "boroughs": [
+    {
+      "page_id": "gyeongbuk-pohang-namgu",
+      "name": "남구",
+      "administrative_areas": [
+        "구룡포읍",
+        "연일읍",
+        "오천읍",
+        "대송면",
+        "동해면",
+        "장기면",
+        "호미곶면",
+        "상대동",
+        "해도동",
+        "송도동",
+        "청림동",
+        "제철동",
+        "효곡동",
+        "대이동"
+      ],
+      "featured_living_areas": [
+        "대잠동",
+        "효자동",
+        "이동",
+        "연일읍",
+        "오천읍",
+        "구룡포읍",
+        "동해면",
+        "장기면"
+      ]
+    },
+    {
+      "page_id": "gyeongbuk-pohang-bukgu",
+      "name": "북구",
+      "administrative_areas": [
+        "흥해읍",
+        "신광면",
+        "청하면",
+        "송라면",
+        "기계면",
+        "죽장면",
+        "기북면",
+        "중앙동",
+        "양학동",
+        "죽도동",
+        "용흥동",
+        "우창동",
+        "두호동",
+        "장량동",
+        "환여동"
+      ],
+      "featured_living_areas": [
+        "양덕동",
+        "장성동",
+        "두호동",
+        "환호동",
+        "흥해읍",
+        "용흥동",
+        "우현동",
+        "죽도동"
+      ]
+    }
+  ]
+}

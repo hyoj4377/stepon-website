@@ -162,9 +162,51 @@ class SEOTests(unittest.TestCase):
             self.assertIn('grid-auto-rows:1fr', text)
             pages += 1
             cards += len(shown)
-        self.assertEqual(pages, 235)
+        self.assertEqual(pages, 237)
         self.assertGreater(cards, 1000)
         self.assertNotIn(target, (ROOT / 'data/seo/regions.json').read_text())
+
+    def test_pohang_two_boroughs_metadata_geography_and_navigation(self):
+        parent = self.builder.ids['gyeongbuk-pohang']
+        refs = json.loads((ROOT / 'data/seo/pohang_borough_geography.json').read_text())['boroughs']
+        targets = {'namgu': '남구', 'bukgu': '북구'}
+        self.assertEqual({r['slug']: r['name'] for r in parent['boroughs']}, targets)
+        self.assertEqual(sum(len(r['administrative_areas']) for r in refs), 29)
+        self.assertEqual(sum(len(r['featured_living_areas']) for r in refs), 16)
+        parent_text = self.builder.outputs[region_path(parent, self.builder.ids)]
+        topics = set()
+        for slug, name in targets.items():
+            item = self.builder.ids['gyeongbuk-pohang-' + slug]
+            path = 'regions/gyeongbuk/pohang/' + slug + '/index.html'
+            self.assertEqual(region_path(item, self.builder.ids), path)
+            text = self.builder.outputs[path]
+            doc = Document(text)
+            self.assertEqual(doc.canonical, [self.builder.canonical(path)])
+            self.assertEqual(doc.og['og:url'], doc.canonical)
+            self.assertEqual(doc.h1, 1)
+            self.assertIn('href="' + slug + '/"', parent_text)
+            for link in ['../', '../../', '../' + ('bukgu' if slug == 'namgu' else 'namgu') + '/']:
+                self.assertIn('href="' + link + '"', text)
+            self.assertIn('경상북도 과외 대표 안내', text)
+            ref = next(r for r in refs if r['page_id'] == item['id'])
+            self.assertEqual([p['name'] for p in item['neighborhoods']], [name + ' ' + n for n in ref['featured_living_areas']])
+            self.assertTrue(all(p['page_id'] is None and set(p) == {'name', 'slug', 'page_id'} for p in item['neighborhoods']))
+            self.assertNotIn('1:1', json.dumps(item, ensure_ascii=False))
+            self.assertNotIn('1:1', text)
+            self.assertNotIn('전주시', text)
+            self.assertNotIn('전북특별자치도', text)
+            breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+            self.assertEqual([p['position'] for p in breadcrumb['itemListElement']], [1, 2, 3, 4, 5])
+            self.assertEqual(service['areaServed']['name'], '경상북도 포항시 ' + name)
+            self.assertEqual(service['areaServed']['containedInPlace']['name'], '경상북도 포항시')
+            self.assertEqual(service['areaServed']['containedInPlace']['containedInPlace']['name'], '경상북도')
+            self.assertEqual([(q['name'], q['acceptedAnswer']['text']) for q in faq['mainEntity']], [(q['question'], q['answer']) for q in item['faq']])
+            topics.add(item['sections'][2]['heading'])
+        self.assertEqual(len(topics), 2)
+        invalid = copy.deepcopy(self.builder.regions)
+        next(r for r in invalid if r['id'] == 'gyeongbuk-pohang-namgu')['parent_id'] = 'gyeongbuk-gumi'
+        with self.assertRaises(ValueError):
+            validate_regions(invalid)
 
     def test_jeonju_two_boroughs_metadata_geography_and_navigation(self):
         parent = self.builder.ids['jeonbuk-jeonju']
@@ -1364,8 +1406,8 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(boroughs), 17)
         topics = set()
         sitemap_urls = [r.text for r in ET.fromstring(self.builder.outputs['sitemap.xml']).iter('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
-        self.assertEqual(len(sitemap_urls), 262)
-        self.assertEqual(len(set(sitemap_urls)), 262)
+        self.assertEqual(len(sitemap_urls), 264)
+        self.assertEqual(len(set(sitemap_urls)), 264)
         for city_slug, targets in expected.items():
             parent = self.builder.ids['gyeonggi-' + city_slug]
             parent_path = region_path(parent, self.builder.ids)
