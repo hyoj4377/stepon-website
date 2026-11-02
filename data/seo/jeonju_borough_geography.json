@@ -1,0 +1,81 @@
+{
+  "source": {
+    "repository": "https://github.com/vuski/admdongkor",
+    "commit": "d5d5a821c8de6cc337d47eeca604d7af76271c9b",
+    "version": "20261001",
+    "classification": "third_party_derived_administrative_dataset",
+    "checked_on": "2026-11-02",
+    "limitation": "최신 공식 원문 및 법정동 경계 직접 대조는 프록시 차단으로 미확인",
+    "sha256": "64c8413a24804515f38430530ba2efc8e01734c4e6c7d414879469a144855402"
+  },
+  "featured_area_basis": "Major living-area examples supplied in this task; administrative names and district memberships matched to dated third-party data. Current official legal boundaries not directly verified due proxy block.",
+  "innovation_scope": "Only Deokjin administrative Hyeoksin-dong coverage is referenced; no claim that entire innovation-city living area belongs to one district.",
+  "boroughs": [
+    {
+      "page_id": "jeonbuk-jeonju-wansan",
+      "name": "완산구",
+      "administrative_areas": [
+        "중앙동",
+        "풍남동",
+        "노송동",
+        "완산동",
+        "동서학동",
+        "서서학동",
+        "중화산1동",
+        "중화산2동",
+        "서신동",
+        "평화1동",
+        "평화2동",
+        "삼천1동",
+        "삼천2동",
+        "삼천3동",
+        "효자1동",
+        "효자2동",
+        "효자3동",
+        "효자4동",
+        "효자5동"
+      ],
+      "featured_living_areas": [
+        "효자동",
+        "서신동",
+        "중화산동",
+        "평화동",
+        "삼천동",
+        "서완산동",
+        "동서학동"
+      ]
+    },
+    {
+      "page_id": "jeonbuk-jeonju-deokjin",
+      "name": "덕진구",
+      "administrative_areas": [
+        "진북동",
+        "인후1동",
+        "인후2동",
+        "인후3동",
+        "덕진동",
+        "금암동",
+        "팔복동",
+        "우아1동",
+        "우아2동",
+        "호성동",
+        "송천1동",
+        "송천2동",
+        "송천3동",
+        "조촌동",
+        "여의동",
+        "혁신동"
+      ],
+      "featured_living_areas": [
+        "송천동",
+        "인후동",
+        "우아동",
+        "금암동",
+        "덕진동",
+        "호성동",
+        "팔복동",
+        "혁신동"
+      ]
+    }
+  ]
+}
