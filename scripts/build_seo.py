@@ -308,6 +308,9 @@ class Builder:
         path = region_path(item, self.ids)
         parent = self.ids[item['parent_id']]
         parent_path = region_path(parent, self.ids)
+        parent_area_type = parent.get('schema_area_type', 'AdministrativeArea')
+        if parent_area_type not in {'AdministrativeArea', 'Place'}:
+            raise ValueError('Unsupported service parent area type')
         is_borough = item['kind'] == 'borough'
         province = self.ids[parent['parent_id']] if is_borough else parent
         sections = []
@@ -366,7 +369,7 @@ class Builder:
                 {'@type': 'ListItem', 'position': 2, 'name': '전국 지역별 과외 안내', 'item': self.base + 'regions/'},
                 {'@type': 'ListItem', 'position': 3, 'name': parent['name'] + ' 과외', 'item': self.canonical(parent_path)},
                 {'@type': 'ListItem', 'position': 4, 'name': item['name'] + ' 과외', 'item': canonical}]},
-            {'@context': 'https://schema.org', '@type': 'Service', '@id': canonical + '#service', 'url': canonical, 'name': item.get('service_name', self.site['brand'] + ' ' + item['name'] + ' 방문과외·화상과외'), 'description': item.get('service_description', item['description']), 'serviceType': item.get('service_type', '초등·중등·고등 영어·수학·국어·사회·과학 방문과외 및 화상과외'), 'provider': {'@type': 'Organization', 'name': self.site['brand'], 'url': self.base, 'telephone': self.site['phone']}, 'areaServed': {'@type': 'AdministrativeArea', 'name': item['official_name'], 'containedInPlace': {'@type': 'AdministrativeArea', 'name': parent['official_name']}}, 'audience': {'@type': 'Audience', 'audienceType': '초등학생·중학생·고등학생'}},
+            {'@context': 'https://schema.org', '@type': 'Service', '@id': canonical + '#service', 'url': canonical, 'name': item.get('service_name', self.site['brand'] + ' ' + item['name'] + ' 방문과외·화상과외'), 'description': item.get('service_description', item['description']), 'serviceType': item.get('service_type', '초등·중등·고등 영어·수학·국어·사회·과학 방문과외 및 화상과외'), 'provider': {'@type': 'Organization', 'name': self.site['brand'], 'url': self.base, 'telephone': self.site['phone']}, 'areaServed': {'@type': 'AdministrativeArea', 'name': item['official_name'], 'containedInPlace': {'@type': parent_area_type, 'name': parent['official_name']}}, 'audience': {'@type': 'Audience', 'audienceType': '초등학생·중학생·고등학생'}},
             {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q['question'], 'acceptedAnswer': {'@type': 'Answer', 'text': q['answer']}} for q in item['faq']]},
         ]
         if is_borough:

@@ -162,7 +162,7 @@ class SEOTests(unittest.TestCase):
             self.assertIn('grid-auto-rows:1fr', text)
             pages += 1
             cards += len(shown)
-        self.assertEqual(pages, 191)
+        self.assertEqual(pages, 213)
         self.assertGreater(cards, 1000)
         self.assertNotIn(target, (ROOT / 'data/seo/regions.json').read_text())
 
@@ -293,6 +293,47 @@ class SEOTests(unittest.TestCase):
         next(x for x in invalid if x['id'] == 'chungbuk-cheongju-sangdang')['parent_id'] = 'chungbuk-chungju'
         with self.assertRaises(ValueError):
             validate_regions(invalid)
+
+    def test_jeonnam_22_city_county_guides_and_geographic_scope(self):
+        hub = self.builder.ids['jeonnam']
+        self.assertEqual(hub['name'], '전남')
+        self.assertEqual(hub['schema_area_type'], 'Place')
+        children = [r for r in self.builder.regions if r.get('parent_id') == 'jeonnam']
+        self.assertEqual(len(children), 22)
+        self.assertEqual(sum(r['name'].endswith('시') for r in children), 5)
+        self.assertEqual(sum(r['name'].endswith('군') for r in children), 17)
+        reference = json.loads((ROOT / 'data/seo/jeonnam_geography.json').read_text())
+        refs = reference['regions']
+        self.assertEqual(sum(len(r['administrative_areas']) for r in refs), 297)
+        self.assertFalse(reference['source']['official_legal_status_verified'])
+        parent_text = self.builder.outputs['regions/jeonnam/index.html']
+        topics = set()
+        for item in children:
+            path = region_path(item, self.builder.ids)
+            text = self.builder.outputs[path]
+            self.assertIn('href="' + item['slug'] + '/"', parent_text)
+            self.assertIn('href="../"', text)
+            self.assertIn(self.builder.canonical(path), text)
+            self.assertIn(item['title'], text)
+            self.assertIn(item['h1'], text)
+            self.assertEqual([p['name'] for p in item['neighborhoods']], next(r['administrative_areas'] for r in refs if r['page_id'] == item['id']))
+            self.assertNotIn('전북특별자치도', text)
+            self.assertNotIn('전라남도', text)
+            self.assertNotIn('1:1', text)
+            self.assertNotIn('1:1', json.dumps(item, ensure_ascii=False))
+            self.assertTrue(all(set(p) == {'name', 'slug', 'page_id'} for p in item['neighborhoods']))
+            breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+            self.assertEqual(service['areaServed']['name'], item['name'])
+            self.assertEqual(service['areaServed']['containedInPlace'], {'@type': 'Place', 'name': '전남 지역'})
+            self.assertEqual([(q['name'], q['acceptedAnswer']['text']) for q in faq['mainEntity']], [(q['question'], q['answer']) for q in item['faq']])
+            topics.add(item['sections'][2]['heading'])
+        self.assertEqual(len(topics), 22)
+        for key in ['title', 'description', 'h1']:
+            self.assertEqual(len({r[key] for r in children}), 22)
+        self.assertEqual(self.builder.ids['gwangju']['name'], '광주')
+        self.builder.ids['jeonnam']['schema_area_type'] = 'InvalidAreaType'
+        with self.assertRaises(ValueError):
+            self.builder.build_district_guide(children[0])
 
     def test_jeonbuk_14_city_county_guides_and_geography(self):
         hub = self.builder.ids['jeonbuk']
@@ -1282,8 +1323,8 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(boroughs), 17)
         topics = set()
         sitemap_urls = [r.text for r in ET.fromstring(self.builder.outputs['sitemap.xml']).iter('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
-        self.assertEqual(len(sitemap_urls), 216)
-        self.assertEqual(len(set(sitemap_urls)), 216)
+        self.assertEqual(len(sitemap_urls), 239)
+        self.assertEqual(len(set(sitemap_urls)), 239)
         for city_slug, targets in expected.items():
             parent = self.builder.ids['gyeonggi-' + city_slug]
             parent_path = region_path(parent, self.builder.ids)
