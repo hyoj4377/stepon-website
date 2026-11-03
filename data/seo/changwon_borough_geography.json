@@ -1,0 +1,148 @@
+{
+  "source": {
+    "repository": "https://github.com/vuski/admdongkor",
+    "commit": "d5d5a821c8de6cc337d47eeca604d7af76271c9b",
+    "version": "20261001",
+    "checked_on": "2026-11-03",
+    "classification": "third_party_derived_administrative_dataset",
+    "reported_parent_names": [
+      "경상남도"
+    ],
+    "limitation": "최신 공식 원문과 세부 경계 직접 대조는 프록시 차단으로 미확인",
+    "sha256": "64c8413a24804515f38430530ba2efc8e01734c4e6c7d414879469a144855402",
+    "upstream_head_checked_on": "2026-11-03"
+  },
+  "featured_area_basis": "Major living-area examples supplied in attached task; administrative memberships checked against latest available repository snapshot. Current official legal boundaries not directly verified due proxy block.",
+  "naming_notes": [
+    "팔용동 생활권과 행정동 팔룡동을 구분",
+    "성산구 행정동 용지동·반송동과 동네명 용호동·반림동을 구분",
+    "웅동 생활권과 행정동 웅동1동·웅동2동을 구분"
+  ],
+  "boroughs": [
+    {
+      "page_id": "gyeongnam-changwon-uichang",
+      "name": "의창구",
+      "administrative_areas": [
+        "동읍",
+        "북면",
+        "대산면",
+        "의창동",
+        "팔룡동",
+        "명곡동",
+        "봉림동"
+      ],
+      "featured_living_areas": [
+        "중동",
+        "소답동",
+        "도계동",
+        "팔용동",
+        "북면",
+        "동읍"
+      ]
+    },
+    {
+      "page_id": "gyeongnam-changwon-seongsan",
+      "name": "성산구",
+      "administrative_areas": [
+        "반송동",
+        "용지동",
+        "중앙동",
+        "상남동",
+        "사파동",
+        "가음정동",
+        "성주동",
+        "웅남동"
+      ],
+      "featured_living_areas": [
+        "상남동",
+        "중앙동",
+        "용호동",
+        "반림동",
+        "가음정동",
+        "대방동"
+      ]
+    },
+    {
+      "page_id": "gyeongnam-changwon-masanhappo",
+      "name": "마산합포구",
+      "administrative_areas": [
+        "구산면",
+        "진동면",
+        "진북면",
+        "진전면",
+        "현동",
+        "가포동",
+        "월영동",
+        "문화동",
+        "반월중앙동",
+        "완월동",
+        "자산동",
+        "교방동",
+        "오동동",
+        "합포동",
+        "산호동"
+      ],
+      "featured_living_areas": [
+        "월영동",
+        "해운동",
+        "산호동",
+        "교방동",
+        "현동",
+        "진동면"
+      ]
+    },
+    {
+      "page_id": "gyeongnam-changwon-masanhoewon",
+      "name": "마산회원구",
+      "administrative_areas": [
+        "내서읍",
+        "회원1동",
+        "회원2동",
+        "석전동",
+        "회성동",
+        "양덕1동",
+        "양덕2동",
+        "합성1동",
+        "합성2동",
+        "구암1동",
+        "구암2동",
+        "봉암동"
+      ],
+      "featured_living_areas": [
+        "양덕동",
+        "합성동",
+        "회원동",
+        "내서읍",
+        "석전동",
+        "구암동"
+      ]
+    },
+    {
+      "page_id": "gyeongnam-changwon-jinhae",
+      "name": "진해구",
+      "administrative_areas": [
+        "충무동",
+        "여좌동",
+        "태백동",
+        "경화동",
+        "병암동",
+        "석동",
+        "이동",
+        "자은동",
+        "덕산동",
+        "풍호동",
+        "웅천동",
+        "웅동1동",
+        "웅동2동"
+      ],
+      "featured_living_areas": [
+        "자은동",
+        "석동",
+        "이동",
+        "풍호동",
+        "용원동",
+        "웅동 생활권"
+      ]
+    }
+  ]
+}

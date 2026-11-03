@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from build_seo import Builder, validate_regions, publication_problems, region_path, verified_source, confirmed_operator_coverage
+from build_seo import Builder, validate_regions, publication_problems, region_path, verified_source, confirmed_operator_coverage, region_fingerprint
 
 
 class Document(HTMLParser):
@@ -162,9 +162,74 @@ class SEOTests(unittest.TestCase):
             self.assertIn('grid-auto-rows:1fr', text)
             pages += 1
             cards += len(shown)
-        self.assertEqual(pages, 255)
+        self.assertEqual(pages, 260)
         self.assertGreater(cards, 1000)
         self.assertNotIn(target, (ROOT / 'data/seo/regions.json').read_text())
+
+    def test_region_fingerprint_is_independent_of_unrelated_place_names(self):
+        item = self.builder.ids['gyeongnam']
+        before = region_fingerprint(item, self.builder.ids)
+        expanded = dict(self.builder.ids)
+        expanded['unrelated-place'] = {'id': 'unrelated-place', 'name': '지역', 'official_name': '성산구', 'parent_id': None}
+        self.assertEqual(before, region_fingerprint(item, expanded))
+        self.assertIn('성산구', before)
+        self.assertNotIn('경상남도', before)
+        # True location-name-only clones retain identical fingerprints.
+        clone = copy.deepcopy(item)
+        clone.update(id='clone-region', name='검증지역', official_name='검증지역')
+        clone['intro'] = item['intro'].replace('경상남도', '검증지역')
+        for section in clone['sections']:
+            section['paragraphs'] = [p.replace('경상남도', '검증지역') for p in section['paragraphs']]
+        self.assertEqual(before, region_fingerprint(clone, {clone['id']: clone}))
+
+    def test_changwon_five_boroughs_metadata_geography_and_navigation(self):
+        parent = self.builder.ids['gyeongnam-changwon']
+        refs = json.loads((ROOT / 'data/seo/changwon_borough_geography.json').read_text())['boroughs']
+        targets = {'uichang': '의창구', 'seongsan': '성산구', 'masanhappo': '마산합포구', 'masanhoewon': '마산회원구', 'jinhae': '진해구'}
+        self.assertEqual({r['slug']: r['name'] for r in parent['boroughs']}, targets)
+        self.assertEqual(sum(len(r['administrative_areas']) for r in refs), 55)
+        self.assertEqual(sum(len(r['featured_living_areas']) for r in refs), 30)
+        parent_text = self.builder.outputs[region_path(parent, self.builder.ids)]
+        topics = set()
+        for slug, name in targets.items():
+            item = self.builder.ids['gyeongnam-changwon-' + slug]
+            path = 'regions/gyeongnam/changwon/' + slug + '/index.html'
+            self.assertEqual(region_path(item, self.builder.ids), path)
+            text = self.builder.outputs[path]
+            doc = Document(text)
+            self.assertEqual(doc.canonical, [self.builder.canonical(path)])
+            self.assertEqual(doc.og['og:url'], doc.canonical)
+            self.assertEqual(doc.h1, 1)
+            self.assertIn('href="' + slug + '/"', parent_text)
+            for link in ['../', '../../']:
+                self.assertIn('href="' + link + '"', text)
+            for other in targets:
+                if other != slug:
+                    self.assertIn('href="../' + other + '/"', text)
+            self.assertIn('경상남도 과외 대표 안내', text)
+            ref = next(r for r in refs if r['page_id'] == item['id'])
+            self.assertEqual([p['name'] for p in item['neighborhoods']], [name + ' ' + n for n in ref['featured_living_areas']])
+            self.assertTrue(all(p['page_id'] is None and set(p) == {'name', 'slug', 'page_id'} for p in item['neighborhoods']))
+            self.assertNotIn('1:1', json.dumps(item, ensure_ascii=False))
+            self.assertNotIn('1:1', text)
+            self.assertNotIn('포항시', text)
+            self.assertNotIn('전북특별자치도', text)
+            breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+            self.assertEqual([p['position'] for p in breadcrumb['itemListElement']], [1, 2, 3, 4, 5])
+            self.assertEqual(service['areaServed']['name'], '경상남도 창원시 ' + name)
+            self.assertEqual(service['areaServed']['containedInPlace']['name'], '경상남도 창원시')
+            self.assertEqual(service['areaServed']['containedInPlace']['containedInPlace']['name'], '경상남도')
+            self.assertEqual([(q['name'], q['acceptedAnswer']['text']) for q in faq['mainEntity']], [(q['question'], q['answer']) for q in item['faq']])
+            topics.add(item['sections'][2]['heading'])
+        self.assertEqual(len(topics), 5)
+        self.assertIn('팔룡동', self.builder.outputs['regions/gyeongnam/changwon/uichang/index.html'])
+        self.assertIn('용지동', self.builder.outputs['regions/gyeongnam/changwon/seongsan/index.html'])
+        self.assertIn('반송동', self.builder.outputs['regions/gyeongnam/changwon/seongsan/index.html'])
+        self.assertIn('웅동1동·웅동2동', self.builder.outputs['regions/gyeongnam/changwon/jinhae/index.html'])
+        invalid = copy.deepcopy(self.builder.regions)
+        next(r for r in invalid if r['id'] == 'gyeongnam-changwon-uichang')['parent_id'] = 'gyeongnam-jinju'
+        with self.assertRaises(ValueError):
+            validate_regions(invalid)
 
     def test_pohang_two_boroughs_metadata_geography_and_navigation(self):
         parent = self.builder.ids['gyeongbuk-pohang']
@@ -1448,8 +1513,8 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(boroughs), 17)
         topics = set()
         sitemap_urls = [r.text for r in ET.fromstring(self.builder.outputs['sitemap.xml']).iter('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
-        self.assertEqual(len(sitemap_urls), 283)
-        self.assertEqual(len(set(sitemap_urls)), 283)
+        self.assertEqual(len(sitemap_urls), 288)
+        self.assertEqual(len(set(sitemap_urls)), 288)
         for city_slug, targets in expected.items():
             parent = self.builder.ids['gyeonggi-' + city_slug]
             parent_path = region_path(parent, self.builder.ids)

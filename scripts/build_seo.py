@@ -62,7 +62,7 @@ def validate_regions(regions):
             parent = ids.get(item.get('parent_id'))
             if not parent or parent['kind'] != KINDS[kind]:
                 raise ValueError('Invalid hierarchy: ' + item['id'])
-            if kind == 'borough' and ((parent.get('parent_id') != 'gyeonggi' and parent['id'] not in {'chungbuk-cheongju', 'chungnam-cheonan', 'jeonbuk-jeonju', 'gyeongbuk-pohang'}) or not parent['name'].endswith('시')):
+            if kind == 'borough' and ((parent.get('parent_id') != 'gyeonggi' and parent['id'] not in {'chungbuk-cheongju', 'chungnam-cheonan', 'jeonbuk-jeonju', 'gyeongbuk-pohang', 'gyeongnam-changwon'}) or not parent['name'].endswith('시')):
                 raise ValueError('Borough requires a supported city parent: ' + item['id'])
         if item['status'] == 'published':
             problems = publication_problems(item, ids)
@@ -138,6 +138,20 @@ REGION_CSS = '''
 @media(max-width:900px){.city-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.district-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:640px){.city-section h2{font-size:24px}.city-cards{grid-template-columns:1fr;gap:14px}.district-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.district-card{padding:19px 15px}.district-card h3{font-size:16px}}
 '''
+
+
+def region_fingerprint(item, ids):
+    """Normalize only this page's locality chain, independent of unrelated records."""
+    names, visited = set(), set()
+    current = item
+    while current and current['id'] not in visited:
+        visited.add(current['id'])
+        names.update(filter(None, (current.get('official_name'), current.get('name'))))
+        current = ids.get(current.get('parent_id'))
+    body = item['intro'] + ''.join(''.join(section['paragraphs']) for section in item['sections'])
+    for name in sorted(names, key=len, reverse=True):
+        body = body.replace(name, '')
+    return re.sub(r'\s+', '', body)
 
 
 class Builder:
@@ -413,10 +427,7 @@ class Builder:
         # Near-duplicates after removing location names are not publishable.
         fingerprints = set()
         for item in published_regions:
-            normalized = item['intro'] + ''.join(''.join(s['paragraphs']) for s in item['sections'])
-            for region in self.regions:
-                normalized = normalized.replace(region['official_name'], '').replace(region['name'], '')
-            normalized = re.sub(r'\s+', '', normalized)
+            normalized = region_fingerprint(item, self.ids)
             if any(SequenceMatcher(None, normalized, previous, autojunk=False).ratio() > 0.85 for previous in fingerprints):
                 raise ValueError('Region-name-only duplicate content: ' + item['id'])
             fingerprints.add(normalized)
