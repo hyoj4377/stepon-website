@@ -259,7 +259,7 @@
 
 세 페이지의 정상 동네 안내·학년/과목/방식·상담 흐름은 유지하고, 대표 질문과 이에 답하는 구체 절차만 강화했습니다. 강남구에서 재사용한 것은 문구나 단일 키워드가 아니라 **검색 의도→제목/도입→학습 문제→점검 절차→FAQ→상담**의 연결입니다.
 
-다음 확대는 실제 관찰 후 결정하며 아직 SEO 성과는 미확인입니다. 검증이 끝난 후의 실행 결과를 아래 기록합니다.
+다음 확대는 실제 관찰 후 결정하며 아직 SEO 성과는 미확인입니다. 실제 실행 결과는 아래와 같습니다.
 
 
 ### 최종 검증 기록
@@ -277,10 +277,19 @@
 | 전체 자동 테스트 | 64개 통과(550.769초). 원본·생성 결과·독립 재생성·기존 지역 회귀 포함 |
 | 수성구 및 기존 작업 공간 | 파일 382개 작업 시작 해시 보존. 커밋은 별도 worktree만 사용 |
 | 사이트맵·다른 페이지·강남구 | 기존 바이트/URL 유지, 변경 없음 |
-| 공개 배포·네이버 성과 | 로컬 확인과 별개. 공개 HTTP·검색 반영/성과는 실제 확인 범위만 최종 응답에 기록 |
+| 공개 배포·네이버 성과 | 세 공개 URL의 일반 요청은 프록시 연결 실패, 권한 확대 요청은 CONNECT 403·HTTP 000으로 원본 서버 응답 미수신. 실제 Pages 배포/새 제목 반영·네이버 수집/성과 미확인 |
 
 ### 커밋 범위와 후속 확인
 
-예정 메시지: `SEO: refine Seocho Songpa Gangdong search intent and content`.
+코드 변경 커밋 메시지: `SEO: refine Seocho Songpa Gangdong search intent and content`.
 
 변경 파일은 `data/seo/regions.json`, `data/seo/generated.json`, `regions/seoul/seocho/index.html`, `regions/seoul/songpa/index.html`, `regions/seoul/gangdong/index.html`, `tests/test_seo.py`, 이 보고서의 7개입니다. 기존 수성구 원본/HTML/생성기/테스트 변경과 이전 보고서는 이번 커밋에 포함하지 않습니다. 새 커밋은 이 보고서 파일의 Git 이력으로 확인할 수 있으며 실제 해시·푸시 결과는 최종 응답에 함께 제공합니다.
+
+
+### 실제 Git 반영 결과
+
+- 코드 변경 커밋: `e213e7c` — `SEO: refine Seocho Songpa Gangdong search intent and content`.
+- `git push origin HEAD:main` 성공: `da1c521..e213e7c HEAD -> main`.
+- 코드 커밋에 포함된 7개 파일의 staged diff를 검토했고, 원본에서 변경된 ID는 세 지역뿐입니다. 수성구 Q&A·생성기 변경이 포함되지 않았습니다.
+- 이 결과를 확정 기록하는 보고서만 후속 커밋합니다. 후속 커밋은 홈페이지 코드·원본·HTML·사이트맵을 추가 변경하지 않습니다.
+- 로컬 검증과 Git 푸시 성공은 실제 GitHub Pages 배포 완료·네이버 수집 완료와 다릅니다. 외부 프록시 차단 때문에 공개 배포와 검색 반영은 미확인이며, 접근 가능한 환경에서 세 URL의 제목·H1과 검색 결과의 반영을 확인해야 합니다.
