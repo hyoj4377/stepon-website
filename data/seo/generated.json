@@ -12,7 +12,7 @@
     "guides/social/index.html": "6427188659b1cdb1bc96fff0b8525b1e71e56b7feecabeecbaadae9dbbd7a591",
     "guides/science/index.html": "55adeeb4a1c1b3e96c18907f622d6ddb0c0ae961e241cbb4e1253535bb8b56b7",
     "guides/performance-assessment/index.html": "cc409e84b0d82ded8b2354156e6d40691a9859812f298b34d76ff22921847d85",
-    "regions/index.html": "4fcf26e7cb5ab62b7ddb26c04b5d891d030b117b4d617e69359b9234b557ea64",
+    "regions/index.html": "a0afd456eaab167c16728c46b38f0c2be8f2b2b4d88ce9c8bc6fe072802be4aa",
     "regions/seoul/index.html": "fa48c82f09ee1cc3ae447f1e8207044227e1b8c2191f00d267860b84b0c7da5a",
     "regions/busan/index.html": "7f377ece862f1b3aaab742ffa0c451ad5b17ac498d93909d7c56262b108f9394",
     "regions/daegu/index.html": "59121e448553029df9ec2dac15be92714736c96a2b80041d0d294e61aebd60d4",
@@ -29,6 +29,7 @@
     "regions/jeonnam/index.html": "922e85b9f731bac1aab14f71df02dd23f4b18b7de155f083ad30601aab038e8a",
     "regions/gyeongbuk/index.html": "395578c2fbc76e4466630738f78884ab3d08505217d7ac75e039b84e5b6e4992",
     "regions/gyeongnam/index.html": "c5d3a844b50d746a16b4730bdb3917d022f9a9d3d48e4241b9f4a3314cceb162",
+    "regions/jeju/index.html": "27b187ecb51c38714f4af5988c11ef42260416efd53daf4a0d94ecc9e15419d6",
     "regions/seoul/gangnam/index.html": "8aba0eefc007c6514298d86d03b8da4d278880617821e06b532accf839060ed3",
     "regions/seoul/gangdong/index.html": "69a47e8abd4f76e0837e6e1804f4dbdcaa27346afb766190e87b3559b932b248",
     "regions/seoul/gangbuk/index.html": "854d1a9caaf40e17bdb518c137d43d36a89986904e8cb2680ab6d7f28b8b2536",
@@ -288,6 +289,8 @@
     "regions/gyeongnam/changwon/masanhappo/index.html": "a37fd82b1cca506f6ab3e49e6e5bfc0d8a18e31fbdba5aeec2985ab817c6606c",
     "regions/gyeongnam/changwon/masanhoewon/index.html": "8bfdb13780d960c83bc1a33bde2ad29b0c951d99e9e9bee01df0a7221100a724",
     "regions/gyeongnam/changwon/jinhae/index.html": "73c0ffdc1b812e6bda20ed4611033a004414853c6ca966c676f2f1801f7521d9",
-    "sitemap.xml": "c927969eb70b053fe56a93b7fe98acf9538aa36f190c7b9ad09d5fb20e9596a6"
+    "regions/jeju/jejusi/index.html": "2aafa2e5500246b379725dd4a95d3f82ff44004f3a08e5957c3eed8ce06c04d6",
+    "regions/jeju/seogwipo/index.html": "12b62294582c12bc750f8245b80672f444461ee958ffda07823cfa7bfd68aa37",
+    "sitemap.xml": "ea49837dfb5211fb8f819226bd9357cc52c1c6c2f901edc3279f893c57c9ebcf"
   }
 }

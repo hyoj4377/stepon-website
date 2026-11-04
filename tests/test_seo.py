@@ -162,7 +162,7 @@ class SEOTests(unittest.TestCase):
             self.assertIn('grid-auto-rows:1fr', text)
             pages += 1
             cards += len(shown)
-        self.assertEqual(pages, 260)
+        self.assertEqual(pages, 262)
         self.assertGreater(cards, 1000)
         self.assertNotIn(target, (ROOT / 'data/seo/regions.json').read_text())
 
@@ -400,6 +400,49 @@ class SEOTests(unittest.TestCase):
         next(x for x in invalid if x['id'] == 'chungbuk-cheongju-sangdang')['parent_id'] = 'chungbuk-chungju'
         with self.assertRaises(ValueError):
             validate_regions(invalid)
+
+    def test_jeju_two_administrative_cities_and_complete_dong_lists(self):
+        province = self.builder.ids['jeju']
+        self.assertEqual(province['status'], 'published')
+        self.assertEqual(province['district_label'], '행정시')
+        self.assertEqual({c['page_id'] for c in province['districts']}, {'jeju-jejusi', 'jeju-seogwipo'})
+        hub = self.builder.outputs['regions/jeju/index.html']
+        self.assertIn('2개 행정시 상세 안내', hub)
+        self.assertIn('href="jeju/"', self.builder.outputs['regions/index.html'])
+        geography = json.loads((ROOT / 'data/seo/jeju_geography.json').read_text())
+        self.assertEqual(geography['source']['classification'], 'third_party_derived_administrative_dataset')
+        total = 0
+        topics = set()
+        for slug, count in [('jejusi', 26), ('seogwipo', 17)]:
+            item = self.builder.ids['jeju-' + slug]
+            self.assertEqual(item['parent_id'], 'jeju')
+            names = [p['name'] for p in item['neighborhoods']]
+            fixture = next(r for r in geography['regions'] if r['page_id'] == item['id'])
+            self.assertEqual(names, fixture['groups'][item['name']])
+            self.assertEqual(len(names), len(set(names)))
+            self.assertEqual(len(names), count)
+            total += count
+            self.assertTrue(all(r['sggnm'] == item['name'] and r['sidonm'] == '제주특별자치도' for r in fixture['administrative_rows']))
+            text = self.builder.outputs[region_path(item, self.builder.ids)]
+            doc = Document(text)
+            self.assertEqual(doc.h1, 1)
+            self.assertEqual(doc.canonical, [self.builder.base + 'regions/jeju/' + slug + '/'])
+            self.assertEqual(doc.og['og:url'], doc.canonical)
+            self.assertIn('href="' + slug + '/"', hub)
+            self.assertIn('제주특별자치도 과외 대표 안내', text)
+            self.assertNotIn('1:1', text)
+            self.assertNotIn('진주시', text)
+            schema = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
+            self.assertEqual([s['@type'] for s in schema], ['BreadcrumbList', 'Service', 'FAQPage'])
+            self.assertEqual(schema[1]['areaServed']['name'], item['official_name'])
+            self.assertEqual(schema[1]['areaServed']['containedInPlace']['name'], '제주특별자치도')
+            self.assertEqual([(q['name'], q['acceptedAnswer']['text']) for q in schema[2]['mainEntity']], [(q['question'], q['answer']) for q in item['faq']])
+            topics.add(next(s['heading'] for s in item['sections'] if s.get('checklist')))
+        self.assertEqual(total, 43)
+        self.assertEqual(len(topics), 2)
+        self.assertIn('추자면', [n['name'] for n in self.builder.ids['jeju-jejusi']['neighborhoods']])
+        self.assertIn('우도면', [n['name'] for n in self.builder.ids['jeju-jejusi']['neighborhoods']])
+        self.assertIn('성산읍', [n['name'] for n in self.builder.ids['jeju-seogwipo']['neighborhoods']])
 
     def test_gyeongnam_18_city_county_guides_and_geography(self):
         hub = self.builder.ids['gyeongnam']
@@ -1514,8 +1557,8 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(len(boroughs), 17)
         topics = set()
         sitemap_urls = [r.text for r in ET.fromstring(self.builder.outputs['sitemap.xml']).iter('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
-        self.assertEqual(len(sitemap_urls), 288)
-        self.assertEqual(len(set(sitemap_urls)), 288)
+        self.assertEqual(len(sitemap_urls), 291)
+        self.assertEqual(len(set(sitemap_urls)), 291)
         for city_slug, targets in expected.items():
             parent = self.builder.ids['gyeonggi-' + city_slug]
             parent_path = region_path(parent, self.builder.ids)
