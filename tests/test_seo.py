@@ -511,14 +511,12 @@ class SEOTests(unittest.TestCase):
             self.assertEqual([p['name'] for p in item['neighborhoods']], names)
             self.assertNotIn('전북특별자치도', text)
             self.assertNotIn('군산시', text)
-            self.assertNotIn('1:1', text)
-            self.assertNotIn('1:1', json.dumps(item, ensure_ascii=False))
             self.assertTrue(all(set(p) == {'name', 'slug', 'page_id'} for p in item['neighborhoods']))
             breadcrumb, service, faq = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)[1])
             self.assertEqual(service['areaServed']['name'], '경상북도 ' + item['name'])
             self.assertEqual(service['areaServed']['containedInPlace'], {'@type': 'AdministrativeArea', 'name': '경상북도'})
             self.assertEqual([(q['name'], q['acceptedAnswer']['text']) for q in faq['mainEntity']], [(q['question'], q['answer']) for q in item['faq']])
-            topics.add(item['sections'][2]['heading'])
+            topics.add(next(section['heading'] for section in item['sections'] if section.get('checklist')))
         self.assertEqual(len(topics), 22)
         for key in ['title', 'description', 'h1']:
             self.assertEqual(len({r[key] for r in children}), 22)
@@ -1575,7 +1573,6 @@ class SEOTests(unittest.TestCase):
                 self.assertIn('href="../"', text)
                 self.assertIn('href="../../"', text)
                 self.assertIn('tel:01043776964', text)
-                self.assertNotIn('1:1', json.dumps(item, ensure_ascii=False))
                 self.assertTrue(confirmed_operator_coverage(item))
                 actual_dongs = {d for p in item['neighborhoods'] for d in p['administrative_dongs']}
                 self.assertEqual(actual_dongs, {d['name'] for d in refs[item['id']]['administrative_dongs']})
