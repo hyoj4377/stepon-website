@@ -469,6 +469,7 @@ window.STEPON_CONFIG = {
  .stepon-floating-links{gap:8px}.stepon-floating-link{width:158px;min-height:48px;padding:10px 14px;font-size:12px}
  .stepon-floating.enhanced .stepon-floating-toggle{display:flex;align-items:center;justify-content:center;gap:7px;margin:10px 0 0 auto;min-height:46px;padding:11px 16px;background:#102b40;color:#fff;border:1px solid #b69a68;border-radius:28px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 3px 14px #102b4020}
  .stepon-floating.enhanced:not(.is-open) .stepon-floating-links{display:none}
+ .stepon-floating.enhanced.is-context-hidden{visibility:hidden;pointer-events:none}
  .stepon-floating-toggle svg{width:17px;height:17px}
 }
 @media(prefers-reduced-motion:reduce){.stepon-floating-link{transition:none}}
@@ -487,17 +488,54 @@ window.STEPON_CONFIG = {
  if(!root)return;
  const button=root.querySelector('.stepon-floating-toggle');
  const mobile=matchMedia('(max-width:640px)');
+ const trialButton=document.querySelector('#trial a.button[data-consult]');
+ let trialVisible=false;
+ let hideTimer;
+ const shouldHide=()=>mobile.matches&&trialVisible&&!root.classList.contains('is-open')&&!root.contains(document.activeElement);
+ const updateVisibility=()=>{
+  clearTimeout(hideTimer);
+  if(!shouldHide()){
+   root.classList.remove('is-context-hidden');
+   return;
+  }
+  // Delay hiding briefly so a fleeting edge intersection does not flash the toggle.
+  hideTimer=setTimeout(()=>{if(shouldHide())root.classList.add('is-context-hidden');},160);
+ };
  const setOpen=open=>{
   root.classList.toggle('is-open',open);
   button.setAttribute('aria-expanded',String(open));
   button.setAttribute('aria-label',`전화·카카오톡·무료 시강 상담 메뉴 ${open?'닫기':'열기'}`);
   button.querySelector('span').textContent=open?'상담 닫기':'상담 메뉴';
+  updateVisibility();
  };
  root.classList.add('enhanced');
  button.addEventListener('click',()=>setOpen(!root.classList.contains('is-open')));
  root.addEventListener('keydown',e=>{if(e.key==='Escape'&&mobile.matches){setOpen(false);button.focus();}});
  document.addEventListener('pointerdown',e=>{if(mobile.matches&&!root.contains(e.target))setOpen(false);});
+ root.addEventListener('focusin',updateVisibility);
+ root.addEventListener('focusout',()=>requestAnimationFrame(updateVisibility));
  mobile.addEventListener('change',()=>setOpen(false));
+ // Without IntersectionObserver, preserve the existing always-available menu.
+ if(trialButton&&'IntersectionObserver' in window){
+  let observer;
+  const observeTrial=()=>{
+   if(observer)observer.disconnect();
+   trialVisible=false;
+   updateVisibility();
+   const header=document.querySelector('.header');
+   const bar=document.querySelector('.mobile-consult');
+   const top=Math.ceil(header?header.getBoundingClientRect().height:0);
+   const bottom=Math.ceil(bar?bar.getBoundingClientRect().height:0);
+   observer=new IntersectionObserver(entries=>{
+    const entry=entries[entries.length-1];
+    trialVisible=entry.isIntersecting&&entry.intersectionRect.width>0&&entry.intersectionRect.height>0;
+    updateVisibility();
+   },{rootMargin:`-${top}px 0px -${bottom}px 0px`,threshold:0});
+   observer.observe(trialButton);
+  };
+  observeTrial();
+  window.addEventListener('resize',observeTrial);
+ }
 })();
 </script>
 <!-- floating-consult:end --></body>
