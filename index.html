@@ -76,6 +76,13 @@
 
 /* Hero secondary link: keep the primary consultation CTA prominent. */
 .hero-trial-guide{display:inline-flex;align-items:center;gap:12px;min-height:44px;margin-top:12px;font-size:13px;font-weight:400;color:var(--muted)}
+
+/* Narrow-screen CTA spacing and minimum phone touch target. */
+@media(max-width:640px){.header-phone{min-width:44px;min-height:44px}}
+@media(max-width:360px){
+ .hero .button-row .button{padding-left:8px;padding-right:8px;gap:6px;white-space:nowrap;flex-shrink:0;min-height:44px}
+ .hero .button-row .secondary{flex:1}
+}
 </style>
 <style id="readability">
 /* 공통 가독성 보정. 빌드 시 서브 페이지에 인라인 포함합니다.
