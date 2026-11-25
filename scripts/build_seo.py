@@ -212,8 +212,10 @@ class Builder:
 <div class="wrap breadcrumb"><a href="{esc(home)}">홈</a><span aria-hidden="true">/</span><a href="{esc(hub)}">전국 과외 안내</a><span aria-hidden="true">/</span><span aria-current="page">{esc(label)}</span></div>
 <main id="main">{content}</main><footer class="footer"><div class="wrap">{brand}<div class="footer-links">{self.nav_link(path, 'regions/index.html', '전국 과외 안내')}{self.phone()}<a href="{esc(self.site['kakao_url'])}" target="_blank" rel="noopener noreferrer">카카오채널 ↗</a><a href="{esc(self.site['blog_url'])}" target="_blank" rel="noopener noreferrer">블로그 ↗</a><a href="{esc(self.site['instagram_url'])}" target="_blank" rel="noopener noreferrer" aria-label="인스타그램, 새 탭"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg><span>인스타그램 ↗</span></a></div><p class="copyright">STEP ON · 학생의 성장을 함께 디자인합니다</p></div></footer><a class="mobile-cta" href="{esc(self.site['consultation_url'])}" target="_blank" rel="noopener noreferrer">무료 시강 상담 <span aria-hidden="true">↗</span></a>{self.floating_consult()}</body></html>\n'''
 
-    def floating_consult(self):
-        component = (ROOT / 'components/floating-consult.html').read_text(encoding='utf-8')
+    def floating_consult(self, *, homepage=False):
+        # Preserve the homepage's approved UI without changing all generated pages.
+        source = 'floating-consult-home.html' if homepage else 'floating-consult.html'
+        component = (ROOT / 'components' / source).read_text(encoding='utf-8')
         for key in ('phone_uri', 'phone', 'kakao_url', 'consultation_url'):
             component = component.replace('{{' + key + '}}', esc(self.site[key]))
         return '<!-- floating-consult:start -->\n' + component + '<!-- floating-consult:end -->'
@@ -481,7 +483,7 @@ class Builder:
         home, count = re.subn(r'<style id="readability">.*?</style>', lambda _: common_style, original_home, flags=re.S)
         if count != 1:
             raise ValueError('Expected exactly one homepage readability style block')
-        floating = self.floating_consult()
+        floating = self.floating_consult(homepage=True)
         if '<!-- floating-consult:start -->' in home:
             home, count = re.subn(r'<!-- floating-consult:start -->.*?<!-- floating-consult:end -->', lambda _: floating, home, flags=re.S)
             if count != 1:

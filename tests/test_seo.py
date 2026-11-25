@@ -79,6 +79,25 @@ class SEOTests(unittest.TestCase):
         # The reproducibility test below still performs independent fresh builds.
         self.builder = copy.deepcopy(self.baseline_builder)
 
+    def test_homepage_floating_source_preserves_approved_ui(self):
+        homepage = (ROOT / 'index.html').read_text()
+        floating = re.search(r'<!-- floating-consult:start -->.*?<!-- floating-consult:end -->', homepage, re.S).group(0)
+        self.assertEqual(self.builder.floating_consult(homepage=True), floating)
+        self.assertIn("document.querySelector('#trial a.button[data-consult]')", floating)
+        self.assertIn('},160)', floating)
+        # Generated subpages continue to use their existing shared component.
+        self.assertNotEqual(self.builder.floating_consult(), floating)
+        for path, output in self.builder.outputs.items():
+            if path.endswith('.html'):
+                self.assertIn(self.builder.floating_consult(), output, path)
+
+    def test_online_related_cards_use_current_guide_copy(self):
+        guide = self.builder.guide_ids['online']
+        for slug in ('visit', 'elementary', 'high'):
+            output = self.builder.outputs['guides/' + slug + '/index.html']
+            self.assertIn(html.escape(guide['h1']), output)
+            self.assertIn(html.escape(guide['description']), output)
+
     def test_generated_output_is_current_and_reproducible(self):
         self.builder.save(check=True)
         other = Builder()
